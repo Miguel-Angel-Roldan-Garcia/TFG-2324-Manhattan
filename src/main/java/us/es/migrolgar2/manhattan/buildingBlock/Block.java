@@ -31,7 +31,7 @@ public class Block extends AbstractEntity {
 	
 	@Max(value = 96)
 	@Min(value = 1)
-	private Integer order;
+	private Integer order_;
 	
 	@ManyToOne
 	private Sector sector;

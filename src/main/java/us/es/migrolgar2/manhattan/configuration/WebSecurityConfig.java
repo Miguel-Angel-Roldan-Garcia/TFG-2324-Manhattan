@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -26,20 +27,33 @@ public class WebSecurityConfig {
     private CustomUserDetailsService customUserDetailsService;
 	
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.cors(Customizer.withDefaults())
 //			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.csrf(csrf -> csrf.disable())
 			.authorizeHttpRequests(requests -> requests
-				.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR, DispatcherType.INCLUDE).permitAll()
-				.requestMatchers(/*"/resources/**","/webjars/**", "/WEB-INF/**", "/error", */
-								 "/favicon.ico", "/signup")
-					.permitAll()
-				.requestMatchers("/", "/game", "/index", "/game/**", "/topic/**", "/app/**", "/game-ws").permitAll()
-				.anyRequest().denyAll()
+					.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR, DispatcherType.INCLUDE).permitAll()
+					.requestMatchers("/resources/**","/webjars/**", "/WEB-INF/**").permitAll()
+					.requestMatchers("/", "/index").permitAll()
+					.requestMatchers("/favicon.ico").permitAll()
+					.requestMatchers("/signup").anonymous() 
+					.requestMatchers("/game-ws", "/topic/**", "/app/**").permitAll() // TODO: Change to actual routes
+					// NOTE: Matches to /game/{Any number}/
+					.requestMatchers(RegexRequestMatcher.regexMatcher("^/game/[\\d]+$")).authenticated() 
+					.requestMatchers(RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+$")).authenticated()
+					.requestMatchers("/lobby/list", "/lobby/new").authenticated()
+					.anyRequest().denyAll() 
+			)
+//			.authorizeHttpRequests(requests -> requests
+//				.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR, DispatcherType.INCLUDE).permitAll()
+//				.requestMatchers(/*"/resources/**","/webjars/**", "/WEB-INF/**", "/error", */
+//								 "/favicon.ico", "/signup")
+//					.permitAll()
+//				.requestMatchers("/", "/game", "/index", "/game/**", "/topic/**", "/app/**", "/game-ws").permitAll()
+//				.anyRequest().denyAll()
 //				.requestMatchers("/**").permitAll()
 				
-			)
+//			)
 //			.authorizeHttpRequests((requests) -> requests
 //				.anyRequest().denyAll()
 //			)
@@ -52,26 +66,26 @@ public class WebSecurityConfig {
 				.failureUrl("/login?error") 
 				.permitAll()
 			)
-//			.logout((logout) -> logout
-//				.logoutSuccessUrl("/index")
-//				.permitAll())
+			.logout((logout) -> logout
+				.logoutSuccessUrl("/index")
+				.permitAll())
 			.sessionManagement(Customizer.withDefaults());
 		
 		return http.build();
 	}
 	
 	@Bean 
-	public PasswordEncoder passwordEncoder() { 
+	PasswordEncoder passwordEncoder() { 
 		 return new BCryptPasswordEncoder();  
 	}
 	
 	@Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());

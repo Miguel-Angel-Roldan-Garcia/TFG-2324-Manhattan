@@ -6,25 +6,15 @@
 <html>
 
 <body>
-	<form:form id="form" name="newUser" action="/signUp" method="post">
-
-		<c:if test="${param.error != null}">
-			<div style="margin-bottom: 15px;">
-				Failed to login.
-				<c:if test="${SPRING_SECURITY_LAST_EXCEPTION != null}">
-							Reason: <c:out value="${SPRING_SECURITY_LAST_EXCEPTION.message}" />
-				</c:if>
-			</div>
-		</c:if>
+	<form:form id="form" action="/signup" method="post" modelAttribute="user">
 
 		<label for="username" class="formLabel">Username</label>
-		<input type="text" id="username" class="inputText" name="username"
-			placeholder="Your username.." required>
+		<form:input type="text" path="username" class="inputText" placeholder="Your username.."/>
 
 		<label for="password" class="formLabel">Password</label>
-		<input type="password" id="password" class="inputText" name="password"
-			placeholder="Your password.." required>
-		<i class="far fa-eye" id="togglePassword"></i>
+		<form:input type="password" path="password" class="inputText" placeholder="Your password.."/>
+
+		<form:input type="hidden" path="enabled"/>
 
 		<input type="submit" value="Sign in">
 	</form:form>

@@ -22,11 +22,13 @@
 	</div>
 	<div>
 		<sec:authorize access="isAuthenticated()">
-			<a href="/game">Link to game</a>
-			<a href="/logout">Logout</a>
+			<a href="/game">Link to game</a><br/>
+			<a href="/lobby/list">List of lobbies</a><br/>
+			<a href="/lobby/new">Create a lobby</a><br/>
+			<a href="/logout">Logout</a><br/>
 		</sec:authorize>
 		<sec:authorize access="!isAuthenticated()">
-			<a href="/signup">Sign up</a>
+			<a href="/signup">Sign up</a><br/>
 			<a href="/login">Login</a>
 		</sec:authorize>
 	</div>

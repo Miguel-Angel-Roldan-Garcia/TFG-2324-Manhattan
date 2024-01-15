@@ -20,7 +20,7 @@ public class City extends AbstractEntity {
 	@NotNull
 	@Min(value = 1)
 	@Max(value = 6)
-	private Integer index;
+	private Integer index_;
 	
 	@ManyToOne
 	private Game game;

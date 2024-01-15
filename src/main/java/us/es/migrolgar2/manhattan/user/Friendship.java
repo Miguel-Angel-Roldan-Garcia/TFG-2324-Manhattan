@@ -1,9 +1,7 @@
-package us.es.migrolgar2.manhattan.board;
+package us.es.migrolgar2.manhattan.user;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,16 +10,18 @@ import us.es.migrolgar2.manhattan.common.AbstractEntity;
 @Entity
 @Getter
 @Setter
-public class Sector extends AbstractEntity {
-	
+public class Friendship extends AbstractEntity {
+
 	private static final long serialVersionUID = 1L;
+
+	private boolean accepted;
 	
 	@NotNull
-	@Min(value = 1)
-	@Max(value = 9)
-	private Integer index_;
-	
 	@ManyToOne
-	private City city;
+	private User user1;
+	
+	@NotNull
+	@ManyToOne
+	private User user2;
 	
 }

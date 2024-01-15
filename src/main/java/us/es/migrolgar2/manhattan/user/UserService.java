@@ -12,7 +12,6 @@ public class UserService {
 
 	private UserRepository userRepository;
 	
-	@Autowired
 	public UserService(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
@@ -21,6 +20,10 @@ public class UserService {
 		return userRepository.findAll();
 	}
 
+	public User findByUsername(String name) {
+		return this.userRepository.findByUsername(name).orElse(null);
+	}
+	
 	public void save(@Valid User user) {
 		this.userRepository.save(user);
 	}
