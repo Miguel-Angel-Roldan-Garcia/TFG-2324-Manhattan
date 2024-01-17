@@ -43,29 +43,27 @@
 	
 	<div id="players">
 		<div id="player1">
-			<h2><c:out value="${lobby.getOwner().getUsername()}"/></h2>
-			<p><c:out value="${lobby.getOwner().isReady()}"/></p>
-			<c:out value="${lobby.getOwner().getColorCode()}"/>
-			<c:out value="${lobby.getPlayer2().getColorCode()}"/>
-			<div class="colorDiv" style="background-color: ${lobby.getOwner().getColorCode()};"></div>
+			<h2><c:out value="${player1.getUsername()}"/></h2>
+			<p><c:out value="${player1.isReady()}"/></p>
+			<div class="colorDiv" style="background-color: ${player1.getColorCode()};"></div>
 		</div>
 		
 		<div id="player2">
-			<h2><c:out value="${lobby.getPlayer2().getUsername()}"/></h2>
-			<p><c:out value="${lobby.getPlayer2().isReady()}"/></p>
-			<div class="colorDiv" style="display: block; background-color: ${lobby.getPlayer2().getColorCode()};"></div>
+			<h2><c:out value="${player2.getUsername()}"/></h2>
+			<p><c:out value="${player2.isReady()}"/></p>
+			<div class="colorDiv" style="display: block; background-color: ${player2.getColorCode()};"></div>
 		</div>
 		
 		<div id="player3">
-			<h2><c:out value="${lobby.getPlayer3().getUsername()}"/></h2>
-			<p><c:out value="${lobby.getPlayer3().isReady()}"/></p>
-			<div class="colorDiv" style="display: block; background-color: ${lobby.getPlayer3().getColorCode()};"></div>
+			<h2><c:out value="${player3.getUsername()}"/></h2>
+			<p><c:out value="${player3.isReady()}"/></p>
+			<div class="colorDiv" style="display: block; background-color: ${player3.getColorCode()};"></div>
 		</div>
 		
 		<div id="player4">
-			<h2><c:out value="${lobby.getPlayer4().getUsername()}"/></h2>
-			<p><c:out value="${lobby.getPlayer4().isReady()}"/></p>
-			<div class="colorDiv" style="display: block; background-color: ${lobby.getPlayer4().getColor().getColorCode()};"></div>
+			<h2><c:out value="${player4.getUsername()}"/></h2>
+			<p><c:out value="${player4.isReady()}"/></p>
+			<div class="colorDiv" style="display: block; background-color: ${player4.getColor().getColorCode()};"></div>
 		</div>
 	</div>
 	
@@ -131,29 +129,15 @@
 	
 	function handleUpdateLobby(newLobby) {
 		console.log(newLobby);
-		if(newLobby.player2) {
-			let player2Div = document.getElementById("player2");
-			player2Div.getElementsByTagName("h2")[0].innerHTML = newLobby.player2.username;
-			player2Div.getElementsByTagName("p")[0].innerHTML = "false";
-			player2Div.getElementsByTagName("div")[0].style["brackground-color"] = newLobby.player2.color;
-			player2Div.getElementsByTagName("div")[0].style["display"] = "block";
+		
+		for(player in newLobby) {
+			let playerDiv = document.getElementById("player" + player.position);
+			playerDiv.getElementsByTagName("h2")[0].innerHTML = player.username;
+			playerDiv.getElementsByTagName("p")[0].innerHTML = player.ready;
+			playerDiv.getElementsByTagName("div")[0].style["brackground-color"] = player.color;
+			playerDiv.getElementsByTagName("div")[0].style["display"] = "block";
 		}
-			
-		if(newLobby.player3) {
-			let player2Div = document.getElementById("player3");
-			player2Div.getElementsByTagName("h2")[0].innerHTML = newLobby.player3.username;
-			player2Div.getElementsByTagName("p")[0].innerHTML = "false";
-			player2Div.getElementsByTagName("div")[0].style["brackground-color"] = newLobby.player3.color;
-			player2Div.getElementsByTagName("div")[0].style["display"] = "block";
-		}
-			
-		if(newLobby.player4) {
-			let player2Div = document.getElementById("player4");
-			player2Div.getElementsByTagName("h2")[0].innerHTML = newLobby.player4.username;
-			player2Div.getElementsByTagName("p")[0].innerHTML = "false";
-			player2Div.getElementsByTagName("div")[0].style["brackground-color"] = newLobby.player4.color;
-			player2Div.getElementsByTagName("div")[0].style["display"] = "block";
-		}
+		
 	}
 </script>
 

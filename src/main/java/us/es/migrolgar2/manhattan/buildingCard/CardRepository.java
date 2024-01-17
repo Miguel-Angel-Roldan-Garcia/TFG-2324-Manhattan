@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface CardRepository extends JpaRepository<Card, Integer> {
 	
-	@Query("SELECT c FROM Card c WHERE NOT c.isDrawn()")
+	@Query("SELECT c FROM Card c WHERE c.player IS NULL")
 	List<Card> getAllCardsNotDrawn();
 
 	@Query("SELECT c FROM Card c WHERE c.used")

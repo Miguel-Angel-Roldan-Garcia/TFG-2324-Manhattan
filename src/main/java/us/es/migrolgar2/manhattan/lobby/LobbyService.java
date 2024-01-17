@@ -50,25 +50,18 @@ public class LobbyService {
 			lobby = retrievedLobby;
 		}
 		
-		int nextFreePosition = lobby.getNextFreePosition();
+		int nextFreePosition = this.getNextFreePosition(lobby.getId());
 		
 		if(nextFreePosition == 0) {
 			// Lobby is full
 			return null;
 		}
 		
-		PlayerDetails playerDetails = this.getAndSavePlayerDetails(nextFreePosition, user);
-		lobby.addPlayer(playerDetails);
-		lobby = this.save(lobby);
-		return lobby;
-	}
-
-	private PlayerDetails getAndSavePlayerDetails(int position, User user) {
 		PlayerDetails playerDetails = this.playerDetailsService.createBlankPlayerDetails();
-		playerDetails.setPosition(position);
+		playerDetails.setPosition(nextFreePosition);
 		playerDetails.setUsername(user.getUsername());
-		playerDetails = this.playerDetailsService.save(playerDetails);
-		return playerDetails;
+		this.addPlayerAndSaveDetails(lobby, playerDetails);
+		return lobby;
 	}
 
 	public Model loadLobbyList(Model model, String username) {
@@ -80,6 +73,39 @@ public class LobbyService {
 		publicLobbies.removeAll(friendsLobbies);
 		model.addAttribute("publicLobbies", publicLobbies);
 		return model;
+	}
+	
+	// -----------------------------------------------------------------------------------------
+	
+	public Integer getNextFreePosition(Integer lobbyId) {
+		List<Integer> positions = List.of(1,2,3,4);
+		Set<Integer> usedPositions = this.lobbyRepository.getAllLobbyPlayersPositions(lobbyId);
+		
+		for(Integer p:positions) {
+			if(!usedPositions.contains(p)) {
+				return p;
+			}
+		}
+		
+		return 0;
+	}
+	
+	
+	public void addPlayerAndSaveDetails(Lobby lobby, PlayerDetails playerDetails) {
+		playerDetails.setLobby(lobby);
+		this.playerDetailsService.save(playerDetails);
+	}
+	
+	public List<PlayerDetails> getLobbyPlayersAsList(Integer lobbyId) {
+		return this.lobbyRepository.getAllLobbyPlayers(lobbyId);
+	}
+	
+	public boolean isUserInLobby(Integer lobbyId, String username) {
+		List<String> playerUsernames = this.lobbyRepository.getAllLobbyPlayers(lobbyId)
+										.stream()
+										.map(pd -> pd.getUsername())
+										.toList();
+		return playerUsernames.contains(username);
 	}
 	
 }

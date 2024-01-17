@@ -1,4 +1,4 @@
-package us.es.migrolgar2.manhattan.board;
+package us.es.migrolgar2.manhattan.sector;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -9,24 +9,24 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import us.es.migrolgar2.manhattan.city.City;
 import us.es.migrolgar2.manhattan.common.AbstractEntity;
-import us.es.migrolgar2.manhattan.game.Game;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class City extends AbstractEntity {
-
+public class Sector extends AbstractEntity {
+	
 	private static final long serialVersionUID = 1L;
 	
 	@NotNull
 	@Min(value = 1)
-	@Max(value = 6)
+	@Max(value = 9)
 	private Integer index_;
 	
 	@ManyToOne
-	private Game game;
+	private City city;
 	
 }

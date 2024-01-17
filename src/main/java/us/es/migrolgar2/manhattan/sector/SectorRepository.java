@@ -1,4 +1,4 @@
-package us.es.migrolgar2.manhattan.board;
+package us.es.migrolgar2.manhattan.sector;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

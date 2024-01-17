@@ -10,10 +10,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import us.es.migrolgar2.manhattan.board.City;
-import us.es.migrolgar2.manhattan.board.Sector;
+import us.es.migrolgar2.manhattan.city.City;
 import us.es.migrolgar2.manhattan.common.AbstractEntity;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
+import us.es.migrolgar2.manhattan.sector.Sector;
 
 @Entity
 @Getter

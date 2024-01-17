@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import us.es.migrolgar2.manhattan.board.City;
-import us.es.migrolgar2.manhattan.board.CityService;
-import us.es.migrolgar2.manhattan.board.Sector;
-import us.es.migrolgar2.manhattan.board.SectorService;
 import us.es.migrolgar2.manhattan.buildingBlock.BlockService;
 import us.es.migrolgar2.manhattan.buildingCard.CardService;
+import us.es.migrolgar2.manhattan.city.City;
+import us.es.migrolgar2.manhattan.city.CityService;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetailsService;
+import us.es.migrolgar2.manhattan.sector.Sector;
+import us.es.migrolgar2.manhattan.sector.SectorService;
 import us.es.migrolgar2.manhattan.user.UserService;
 
 @Service
@@ -52,7 +52,7 @@ public class GameService {
 		Comparator<PlayerDetails> c = Comparator.comparing(pd -> this.userService.findByUsername(pd.getUsername()).getAge());
 		PlayerDetails olderPlayer = Collections.max(gamePlayers, c);
 		olderPlayer.setPlaying(true);
-		this.playerDetailsService.save(olderPlayer);
+		olderPlayer = this.playerDetailsService.save(olderPlayer);
 		
 		this.cardService.initializeCards(game);
 		

@@ -16,6 +16,8 @@
 
 		<label for="privacyStatus" class="formLabel">Privacy status (Whether or not it is shown on the list, it doesn't control who can enter)</label>
 		<form:select path="privacyStatus" items="${attributeStatuses}"/>
+	
+		<form:input type="hidden" path="available" value="true"/>
 
 		<input type="submit" value="Create lobby">
 	</form:form>

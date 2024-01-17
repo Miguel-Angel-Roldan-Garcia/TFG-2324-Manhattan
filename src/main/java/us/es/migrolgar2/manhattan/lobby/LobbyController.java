@@ -2,6 +2,7 @@ package us.es.migrolgar2.manhattan.lobby;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -71,20 +72,23 @@ public class LobbyController {
 			LobbyPrivacyStatus[] privacyStatuses = LobbyPrivacyStatus.values();
 			model.addAttribute("attributeStatuses", privacyStatuses);
 			return LOBBY_NEW;
-		} else {
-			User user = this.userService.findByUsername(principal.getName());
-			PlayerDetails playerDetails = this.playerDetailsService.createBlankPlayerDetails();
-			playerDetails.setPosition(1);
-			playerDetails.setUsername(user.getUsername());
-			playerDetails = this.playerDetailsService.save(playerDetails);
 			
+		} else {
 			if(lobby.hasPassword()) {
 				lobby.setPassword(this.passwordEncoder.encode(lobby.getPassword()));
 			}
 			
-			lobby.setOwner(playerDetails);
 			lobby = this.lobbyService.save(lobby);
+			
+			User user = this.userService.findByUsername(principal.getName());
+			PlayerDetails playerDetails = this.playerDetailsService.createBlankPlayerDetails();
+			playerDetails.setPosition(1);
+			playerDetails.setUsername(user.getUsername());
+			playerDetails.setLobby(lobby);
+			playerDetails = this.playerDetailsService.save(playerDetails);
+			
 		}
+		
 		return "redirect:/lobby/" + lobby.getId();
 	}
 	
@@ -97,6 +101,11 @@ public class LobbyController {
 		}
 		
 		model.addAttribute("lobby", lobby);
+		
+		List<PlayerDetails> players = this.lobbyService.getLobbyPlayersAsList(lobby.getId());
+		for(PlayerDetails pd:players) {
+			model.addAttribute("player" + pd.getPosition(), pd);
+		}
 		
 		return LOBBY_SHOW;
 	}
@@ -118,13 +127,13 @@ public class LobbyController {
 				bindingResult.rejectValue("name", "", notFoundMsg);
 				
 			} else {
-				if(retrievedLobby.isUserInLobby(principal.getName())) {
+				if(this.lobbyService.isUserInLobby(retrievedLobby.getId(), principal.getName())) {
 					return "redirect:/lobby/" + retrievedLobby.getId();
 				}
 				
 				String passwordMatchError = null;
 				if(retrievedLobby.hasPassword()) {
-					if(!lobby.hasPassword()) {
+					if(!lobby.hasPassword()) { 
 						passwordMatchError = "A password is required.";
 					} else {
 						if(!this.passwordEncoder.matches(lobby.getPassword(), retrievedLobby.getPassword())) {
@@ -142,8 +151,10 @@ public class LobbyController {
 					if(retrievedLobby == null) {
 						bindingResult.rejectValue("", "", "The lobby is full");
 					} else {
-						retrievedLobby.setPassword(null);
-						this.simpMessagingTemplate.convertAndSend("/lobby/" + retrievedLobby.getId() + "/lobbyReload", retrievedLobby);
+						this.simpMessagingTemplate
+							.convertAndSend("/lobby/" + retrievedLobby.getId() + "/lobbyReload", 
+											this.lobbyService.getLobbyPlayersAsList(retrievedLobby.getId())
+										   );
 						return "redirect:/lobby/" + retrievedLobby.getId();
 					}
 				}
@@ -158,13 +169,17 @@ public class LobbyController {
 	@GetMapping("/lobby/{id}/start")
 	public String getStartGame(@PathVariable("id") int id, Model model) {
 		// TODO Check if players are ready
+		// TODO Check if the owner prompted the start
 		
 		Lobby lobby = this.lobbyService.findById(id);
+		lobby.setAvailable(false);
+		lobby = this.lobbyService.save(lobby);
+		
 		Game game = new Game();
 		game.setStartDate(LocalDateTime.now());
 		game = this.gameService.save(game);
 		
-		for(PlayerDetails playerDetails:lobby.getPlayersAsList()) {
+		for(PlayerDetails playerDetails:this.lobbyService.getLobbyPlayersAsList(lobby.getId())) {
 			playerDetails.setGame(game);
 			this.playerDetailsService.save(playerDetails);
 		}

@@ -1,4 +1,4 @@
-package us.es.migrolgar2.manhattan.board;
+package us.es.migrolgar2.manhattan.city;
 
 import org.springframework.stereotype.Service;
 
