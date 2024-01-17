@@ -6,7 +6,9 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import us.es.migrolgar2.manhattan.common.AbstractEntity;
 import us.es.migrolgar2.manhattan.game.Game;
@@ -15,6 +17,8 @@ import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Card extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -33,7 +37,7 @@ public class Card extends AbstractEntity {
 	private Game game;
 	
 	@Transient
-	public boolean isDrawed() {
+	public boolean isDrawn() {
 		return this.player != null;
 	}
 	

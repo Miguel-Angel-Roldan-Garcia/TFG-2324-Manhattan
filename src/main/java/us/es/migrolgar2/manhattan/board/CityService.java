@@ -2,17 +2,16 @@ package us.es.migrolgar2.manhattan.board;
 
 import org.springframework.stereotype.Service;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class CityService {
 	
 	private CityRepository cityRepository;
 	
-	public CityService(CityRepository cityRepository) {
-		this.cityRepository = cityRepository;
-	}
-	
-	public void save(City city) {
-		this.cityRepository.save(city);
+	public City save(City city) {
+		return this.cityRepository.save(city);
 	}
 	
 }

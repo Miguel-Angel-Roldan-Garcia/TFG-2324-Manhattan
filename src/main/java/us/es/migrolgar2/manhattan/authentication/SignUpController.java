@@ -7,7 +7,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.transaction.Transactional;
@@ -43,17 +42,14 @@ public class SignUpController {
 	
 	@PostMapping(value = "/signup")
 	@Transactional
-	public String processCreationForm(@ModelAttribute("User") @Valid User user, Model model, BindingResult result) {
+	public String processCreationForm(Model model, @Valid User user, BindingResult result) {
+		if(this.userService.findByUsername(user.getUsername()) != null) {
+			result.rejectValue("username", "ExistingUsername", "An user with that username already exists.");
+		}
+		
 		if (result.hasErrors()) {
 			return VIEWS_SIGN_UP;
 		} else {
-			
-//			List<String> usernames = userService.findAll().stream().map(u -> u.getUsername()).collect(Collectors.toList());
-//			if(usernames.contains(user.getUsername())) {
-//				result.rejectValue("username", "ExistingUsername", "An user with that username already exists");
-//				return VIEWS_SIGN_UP;
-//			}
-
 			user.setPassword(this.passwordEncoder.encode(user.getPassword()));
 			user.setEnabled(true);
 			user.setCreationDate(LocalDateTime.now());

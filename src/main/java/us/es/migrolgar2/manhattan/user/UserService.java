@@ -2,7 +2,6 @@ package us.es.migrolgar2.manhattan.user;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.validation.Valid;

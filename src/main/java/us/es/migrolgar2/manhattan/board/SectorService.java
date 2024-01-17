@@ -2,17 +2,16 @@ package us.es.migrolgar2.manhattan.board;
 
 import org.springframework.stereotype.Service;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class SectorService {
 
 	private SectorRepository sectorRepository;
 	
-	public SectorService(SectorRepository sectorRepository) {
-		this.sectorRepository = sectorRepository;
-	}
-	
-	public void save(Sector sector) {
-		this.sectorRepository.save(sector);
+	public Sector save(Sector sector) {
+		return this.sectorRepository.save(sector);
 	}
 	
 }

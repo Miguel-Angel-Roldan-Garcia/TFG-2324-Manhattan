@@ -12,12 +12,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
-		config.enableSimpleBroker("/topic/");
-		config.setApplicationDestinationPrefixes("/app");
+//		config.enableSimpleBroker("/topic/");
+//		config.setApplicationDestinationPrefixes("/app");
+		config.enableSimpleBroker("/lobby/", "/game/");
+		config.setApplicationDestinationPrefixes("/lobby-msgs", "/game-msgs");
+		
 	}
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
+		registry.addEndpoint("/lobby-ws")
+				.setAllowedOrigins("http://localhost", "https://localhost", "ws://localhost")
+				.withSockJS();
 		registry.addEndpoint("/game-ws")
 				.setAllowedOrigins("http://localhost", "https://localhost", "ws://localhost")
 				.withSockJS();

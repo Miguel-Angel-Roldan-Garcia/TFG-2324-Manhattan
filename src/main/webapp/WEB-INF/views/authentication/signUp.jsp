@@ -7,13 +7,23 @@
 
 <body>
 	<form:form id="form" action="/signup" method="post" modelAttribute="user">
-
-		<label for="username" class="formLabel">Username</label>
-		<form:input type="text" path="username" class="inputText" placeholder="Your username.."/>
-
-		<label for="password" class="formLabel">Password</label>
-		<form:input type="password" path="password" class="inputText" placeholder="Your password.."/>
-
+	
+		<form:errors path="*" element="div"/>
+		
+		<br/>
+		
+		<div>
+			<label for="username" class="formLabel">Username</label>
+			<form:input type="text" path="username" class="inputText" placeholder="Your username.."/>
+			<form:errors path="username"/>
+		</div>
+		
+		<div>
+			<label for="password" class="formLabel">Password</label>
+			<form:input type="password" path="password" class="inputText" placeholder="Your password.."/>
+			<form:errors path="password"/>
+		</div>
+		
 		<form:input type="hidden" path="enabled"/>
 
 		<input type="submit" value="Sign in">

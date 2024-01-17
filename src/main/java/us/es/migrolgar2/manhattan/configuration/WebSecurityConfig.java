@@ -37,11 +37,15 @@ public class WebSecurityConfig {
 					.requestMatchers("/", "/index").permitAll()
 					.requestMatchers("/favicon.ico").permitAll()
 					.requestMatchers("/signup").anonymous() 
-					.requestMatchers("/game-ws", "/topic/**", "/app/**").permitAll() // TODO: Change to actual routes
+					.requestMatchers("/game-ws", "/lobby-ws", "/lobby-ws/**", "/topic/**", "/app/**")
+							.permitAll() // TODO: Change to actual routes
 					// NOTE: Matches to /game/{Any number}/
 					.requestMatchers(RegexRequestMatcher.regexMatcher("^/game/[\\d]+$")).authenticated() 
-					.requestMatchers(RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+$")).authenticated()
-					.requestMatchers("/lobby/list", "/lobby/new").authenticated()
+					.requestMatchers(RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+$"),
+									 RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+/lobbyReload$"),
+									 RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+/start$"))
+							.authenticated()
+					.requestMatchers("/lobby/list", "/lobby/new", "/lobby/join").authenticated()
 					.anyRequest().denyAll() 
 			)
 //			.authorizeHttpRequests(requests -> requests

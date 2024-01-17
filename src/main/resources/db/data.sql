@@ -10,3 +10,10 @@ INSERT INTO authorities(username, authority) values(1, "Admin");
 INSERT INTO authorities(username, authority) values(2, "Admin");
 INSERT INTO authorities(username, authority) values(3, "Admin");
 INSERT INTO authorities(username, authority) values(4, "Admin");
+
+INSERT INTO friendships(accepted, user1_id, user2_id) values(1, 1, 2);
+INSERT INTO friendships(accepted, user1_id, user2_id) values(1, 3, 1);
+
+INSERT INTO player_details(color, playing, position, ready, score, username, version) VALUES(0,0,1,0,0,"ManhattanAdmin",0);
+
+INSERT INTO lobby(privacy_status, name, password, owner_id, version) VALUES("FRIENDS", "TestLobby", "$2a$10$u6xox6e25F7.jBnLsOKbceJ5Y8zkKoqHKPuf34bqxXgMgrpG6QT12", 1, 0);

@@ -6,7 +6,9 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import us.es.migrolgar2.manhattan.board.City;
 import us.es.migrolgar2.manhattan.board.Sector;
@@ -16,6 +18,8 @@ import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Block extends AbstractEntity {
 	
 	private static final long serialVersionUID = 1L;

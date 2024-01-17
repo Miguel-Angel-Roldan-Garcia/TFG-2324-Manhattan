@@ -4,20 +4,61 @@
 
 <!doctype html>
 <html>
+<head>
+	<meta charset="UTF-8">
+	<style>
+		li.pointer-hover:hover {
+			cursor: pointer;
+		}
+	</style>
+</head>
 
 <body>
 	<h2>Lobbies of your friends</h2>
-	<ul>
-		<c:forEach var="friendLobby" items="${friendsLobbies}">
-			<li><c:out value="${friendsLobbies.getName()}"/></li>
-		</c:forEach>
-	</ul>
+	<div>
+		<ul>
+			<c:forEach var="friendLobby" items="${friendsLobbies}">
+				<li class="pointer-hover" onclick="setFormName('${friendLobby.getName()}')"><c:out value="${friendLobby.getName()}"/></li>
+			</c:forEach>
+		</ul>
+	</div>
 	<h2>Public lobbies</h2>
-	<ul>
-		<c:forEach var="publicLobby" items="${publicLobbies}">
-			<li><c:out value="${publicLobby.getName()}"/></li>
-		</c:forEach>
-	</ul>
+	<div>
+		<ul>
+			<c:forEach var="publicLobby" items="${publicLobbies}">
+				<li class="pointer-hover" onclick="setFormName('${publicLobby.getName()}')"><c:out value="${publicLobby.getName()}"/></li>
+			</c:forEach>
+		</ul>
+	</div>
+	
+	<div>
+		<form:form id="form" action="/lobby/join" method="post" modelAttribute="lobby">
+
+		<form:errors path="*" element="div"/>
+		<br/>
+
+		<div>
+			<label for="name" class="formLabel">Name of the lobby</label>
+			<form:input id="formNameInput" type="text" path="name"/>
+			<form:errors path="name"/>
+		</div>
+		
+		<div>
+			<label for="password" class="formLabel">Optional password of the lobby</label>
+			<form:input type="password" path="password"/>
+			<form:errors path="password"/>
+		</div>
+		<br/>
+
+		<input type="submit" value="Join lobby">
+	</form:form>
+	</div>
 </body>
+
+<script>
+function setFormName(name) {
+	document.getElementById('formNameInput').value = name;
+}
+</script>
 
 </html>

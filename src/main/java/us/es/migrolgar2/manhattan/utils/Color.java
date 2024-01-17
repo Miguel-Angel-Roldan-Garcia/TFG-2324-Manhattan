@@ -9,7 +9,7 @@ public enum Color {
 	BLUE("#3e59f8"),
 	RED("#eb0000"),
 	GREEN("#00fe00"),
-	YELLOW("ffff01"),
+	YELLOW("#ffff01"),
 	CYAN("#00ffff"),
 	PURPLE("#bd2bbb"),
 	GREY("#797979"),
