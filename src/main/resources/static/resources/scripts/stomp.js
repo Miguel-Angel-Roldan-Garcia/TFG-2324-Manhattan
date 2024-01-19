@@ -1,16 +1,16 @@
 
-class ChatStompClient {
+class ManhattanStompClient {
 	
 	constructor(scene) {
 		this.socket = new SockJS('/game-ws');
 		this.stompClient = Stomp.over(this.socket);
-		//this.stompClient = new Stomp.client('ws://localhost:8080/game-ws');
 		
-		this.stompClient.onConnect = (frame) => {
-		    console.log('Connected: ' + frame);
-		    stompClient.subscribe('/topic/chat', (ChatMessage) => {
-		        scene.chat.addMessage(JSON.parse(ChatMessage.body).msg);
-		    });
+		this.socket.onclose = () => {
+			console.log('WebSocket connection closed');
+		};
+		
+		this.socket.onerror = (error) => {
+			console.error('WebSocket error', error);
 		};
 		
 		this.stompClient.onWebSocketError = (error) => {

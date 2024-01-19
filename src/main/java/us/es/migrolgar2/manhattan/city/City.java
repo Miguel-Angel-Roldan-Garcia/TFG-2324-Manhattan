@@ -1,5 +1,7 @@
 package us.es.migrolgar2.manhattan.city;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Max;
@@ -26,6 +28,7 @@ public class City extends AbstractEntity {
 	@Max(value = 6)
 	private Integer index_;
 	
+	@JsonIgnore
 	@ManyToOne
 	private Game game;
 	

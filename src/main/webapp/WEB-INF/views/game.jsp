@@ -18,8 +18,8 @@
 	<spring:url value="/webjars/jquery-ui/1.13.2/jquery-ui.min.css" var="jQueryUiCss"/>
 	<link href="${jQueryUiCss}" rel="stylesheet"/>
 	
-	<spring:url value="/webjars/bootstrap/5.3.2/js/bootstrap.min.js" var="bootstrapJs"/>
-	<script src="${bootstrapJs}"></script>
+	<%-- <spring:url value="/webjars/bootstrap/5.3.2/js/bootstrap.min.js" var="bootstrapJs"/>
+	<script src="${bootstrapJs}"></script> --%>
 	
 	<script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
@@ -27,33 +27,37 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 	
-	<style>
-		html, body {
-			margin: 0px;
-			
-			width: 100%;
-			height: 100%;
-			
-			overflow-y: None;
-		}
-	</style>
+	<link href="/resources/css/game.css" rel="stylesheet"/>
 </head>
 
 <body>
+
+	<!-- Loading page overlay -->
+	<div id="loading-overlay">
+		<h1 id="loading-msg">Please wait while the game loads.</h1>
+	</div>
 
 	<div id="main-container"></div>
 
 	<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being enabled. Please enable Javascript and reload this page!</h2></noscript>
 	
+	<script src="/resources/scripts/stomp.js"></script>
 	<script src="/resources/scripts/chat.js"></script>
-	<!-- <script src="/resources/scripts/stomp.js"></script> -->
+	<script src="/resources/scripts/fetchData.js"></script>
     <script>
+    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
+    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+    const gameId = "${gameId}";
+    const phaserGame = null;
+    const gameData = null;
+    
     class scene extends Phaser.Scene
     {
     	constructor()
     	{
     		super({ key: 'MainScene' });
     		this.chat = null;
+    		this.stompClient = null;
     	}
     	
         preload ()
@@ -65,34 +69,27 @@
         			true
         	); 
         	
-            this.load.image('logo', 'https://labs.phaser.io/assets/sprites/phaser3-logo.png');
-            
         }
 
         create ()
         {
-            const logo = this.physics.add.image(100, 40, 'logo');
-
-            logo.setVelocity(0, 100);
-            logo.setBounce(1, 1);
-            logo.setCollideWorldBounds(true);
+        	// Creation of the stomp client
+            this.stompClient = new ManhattanStompClient();
             
-            this.chat = new GameChat(this, 600, 400, 300, 300);
-            //this.chat.addMessage("Hello world!");
-            //this.chat.addMessage("Phaser is a fast, free, and fun open source HTML5 game framework that offers WebGL and Canvas rendering across desktop and mobile web browsers. Games can be compiled to iOS, Android and native apps by using 3rd party tools. You can use JavaScript or TypeScript for development. Along with the fantastic open source community, Phaser is actively developed and maintained by Photon Storm. As a result of rapid support, and a developer friendly API, Phaser is currently one of the most starred game frameworks on GitHub. Thousands of developers from indie and multi-national digital agencies, and universities worldwide use Phaser. You can take a look at their incredible games.");
-            this.chat.addMessage("Alo1");
-            this.chat.addMessage("Alo2");
-            this.chat.addMessage("Alo3");
-            this.chat.addMessage("Alo5");
-            this.chat.addMessage("Alo6");
-            this.chat.addMessage("Alo7");
-            this.chat.addMessage("Alo8");
-            this.chat.addMessage("Alo9");
+        	// Creation of game chat
+            const chatWidth = vw * 0.2;
+            const chatHeight = vh * 0.3;
+            const chatX = 0;
+            const chatY = vh - chatHeight;
+            
+            this.chat = new GameChat(this, chatX, chatY, chatWidth, chatHeight, this.stompClient, gameId);
+            this.chat.addMessage("Welcome to the chat!");
             
             this.borderGraphics = this.add.graphics();
             
-            this.input.keyboard.on('keydown-UP', (event) => { this.chat.scrollTextUp() });
-            this.input.keyboard.on('keydown-DOWN', (event) => { this.chat.scrollTextDown() });
+            // 
+            
+            
         }
         
         update () 
@@ -106,28 +103,18 @@
 
             // Clear previous graphics and draw new borders based on the container size
             this.borderGraphics.clear();
-            this.borderGraphics.lineStyle(2, 0xffffff); // Border color and thickness
+            this.borderGraphics.lineStyle(1, 0xffffff); // Border color and thickness
             this.borderGraphics.strokeRect(container.x, container.y, container.width, container.height);
         }
 
-        printChatMsg(msg) 
-        {
-        	this.chat.addMessage(msg);
-        }
     }
     
-    const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)
-    const vh = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
-
     const config = {
     	parent: 'main-container',
         type: Phaser.AUTO,
         width: vw,
         height: vh,
         scene: scene,
-        physics: {
-            default: 'arcade',
-        },
     	scale: {
     		parent: 'main-container',
         	
@@ -140,7 +127,16 @@
     	fullscreenTarget: 'main-container'
     };
     
-    const game = new Phaser.Game(config);
+    fetchData("/game/" + gameId + "/get-data")
+    	.then(data => {
+    		gameData = data;
+    		phaserGame = new Phaser.Game(config);
+    		document.getElementById("loading-overlay").style.display = "none";
+    	})
+    	.catch(error => {
+    		document.getElementById("loading-msg").innerHtml = "Something went wrong fetching game data!";
+    	});
+    
     </script>
 
 </body>

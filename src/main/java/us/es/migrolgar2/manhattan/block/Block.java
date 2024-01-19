@@ -1,4 +1,7 @@
-package us.es.migrolgar2.manhattan.buildingBlock;
+package us.es.migrolgar2.manhattan.block;
+
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -29,12 +32,17 @@ public class Block extends AbstractEntity {
 	@Min(value = 1)
 	private Integer size;
 	
+	@NotNull
+	@Min(value = 1)
+	@Max(value = 96)
+	private Integer index_;
+	
 	private boolean selected;
 	
 	private boolean placed;
 	
-	@Max(value = 96)
 	@Min(value = 1)
+	@Max(value = 96)
 	private Integer order_;
 	
 	@ManyToOne
@@ -44,6 +52,12 @@ public class Block extends AbstractEntity {
 	@ManyToOne
 	private PlayerDetails player;
 	
+	@JsonGetter("player")
+	public String getPlayerUsername() {
+		return this.getPlayer().getUsername();
+	}
+	
+	@JsonIgnore
 	@Transient
 	public City getCity() {
 		return this.sector.getCity();

@@ -1,17 +1,18 @@
 
 class GameChat extends Phaser.GameObjects.Container {
 	
-	constructor (scene, x, y, width, height, stompClient) {
+	constructor (scene, x, y, width, height, stompClient, gameId) {
 		super(scene, x, y)
 		this.scene = scene;
+		this.gameId = gameId;
 		
 		//General params of the chat container and text
 		
 		this.width = width;
 		this.height = height;
 		
-		this.marginX = (1/10) * width;
-		this.marginY = (1/10) * height; 
+		this.marginX = Math.min((1/10) * width, 30);
+		this.marginY = Math.min((1/10) * height, 30); 
 		
 		this.inputTextHeight = 20
 		
@@ -74,33 +75,42 @@ class GameChat extends Phaser.GameObjects.Container {
 		
 		this.add(this.inputText);
 		
-		// STOMP client
-		this.socket = new SockJS('/game-ws');
-		this.stompClient = Stomp.over(this.socket);
+		// Stomp client
+		
+		this.stompClient = stompClient.stompClient;
 		
 		this.stompClient.connect({}, (frame) => {
 		    console.log('Connected: ' + frame);
-		    this.stompClient.subscribe('/topic/chat', (ChatMessage) => {
+		    this.stompClient.subscribe('/game/'+ this.gameId + '/chat', (ChatMessage) => {
 		        this.addMessage(JSON.parse(ChatMessage.body).msg);
 		    });
 		});
 		
-		this.socket.onclose = () => {
-			console.log('WebSocket connection closed');
-		};
+		// Interactive scroll of the chat
+		this.setInteractive();
 		
-		this.socket.onerror = (error) => {
-			console.error('WebSocket error', error);
-		};
-		
-		this.stompClient.onWebSocketError = (error) => {
-		    console.error('Error with websocket', error);
-		};
-		
-		this.stompClient.onStompError = (frame) => {
-		    console.error('Broker reported error: ' + frame.headers['message']);
-		    console.error('Additional details: ' + frame.body);
-		};
+		this.scene.input.keyboard.on('keydown-UP', (event) => { this.scrollTextUp() });
+        this.input.keyboard.on('keydown-DOWN', (event) => { this.scrollTextDown() });
+        
+        this.on('pointerover', () => {
+        	// console.log('Mouse is over the container');
+        	
+            this.scene.input.on('wheel', (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
+            	// console.log('deltaY: ' + deltaY);
+                if(deltaY < 0) {
+                	// console.log('Scrolling up or swiping down with touchpad');
+                	this.scrollTextDown(deltaY);
+                } else if(deltaY > 0) {
+                	// console.log('Scrolling down or swiping up with touchpad');
+                	this.scrollTextUp(deltaY);
+                }
+            });
+        });
+
+        this.on('pointerout', () => {
+        	// console.log('Mouse is no longer over the container');
+            this.scene.input.off('wheel');
+        });
 		
 	}
 	
@@ -176,6 +186,7 @@ class GameChat extends Phaser.GameObjects.Container {
     scrollTextUp() {
 		if(this.getLastMessage().y > this.marginY) {
 			const movedHeight = 5;
+			
 			this.msgY -= movedHeight;
 			
 			for(var i = 0; i < this.messages.length; i++) {
@@ -187,7 +198,8 @@ class GameChat extends Phaser.GameObjects.Container {
     // Function to scroll the text down
     scrollTextDown() {
         if (this.messages[0].y < 0) {
-            const movedHeight = 5;
+			const movedHeight = 5;
+			
 			this.msgY += movedHeight;
 			
 			for(var i = 0; i < this.messages.length; i++) {
@@ -197,7 +209,7 @@ class GameChat extends Phaser.GameObjects.Container {
     };
 	
 	sendMessage(msg) {
-		this.stompClient.send("/app/chat", {}, JSON.stringify({'msg': msg}));
+		this.stompClient.send("/game-msgs/" + this.gameId + "/chat", {}, JSON.stringify({'msg': msg}));
 	}
 	
 }

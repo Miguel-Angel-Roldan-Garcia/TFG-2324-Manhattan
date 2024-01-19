@@ -176,6 +176,9 @@ public class LobbyController {
 		lobby = this.lobbyService.save(lobby);
 		
 		Game game = new Game();
+		game.setRoundNumber(1);
+		game.setTurnNumber(1);
+		game.setRoundPlaying(false);
 		game.setStartDate(LocalDateTime.now());
 		game = this.gameService.save(game);
 		
@@ -184,6 +187,7 @@ public class LobbyController {
 			this.playerDetailsService.save(playerDetails);
 		}
 		
+		// TODO Check if any color repeats
 		// TODO if player numbers is < 4, introduce AI player details
 		
 		this.gameService.initializeGame(game);

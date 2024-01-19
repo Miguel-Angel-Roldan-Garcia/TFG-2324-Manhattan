@@ -1,6 +1,7 @@
 package us.es.migrolgar2.manhattan.playerDetails;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -38,14 +39,18 @@ public class PlayerDetails extends AbstractEntity {
 	@Max(value = 4)
 	private Integer position;
 	
+	private boolean hasSelectedBlocks;
+	
 	private boolean playing;
 	
 	@NotBlank
 	private String username;
 	
+	@JsonIgnore
 	@ManyToOne
 	private Game game;
 	
+	@JsonIgnore
 	@ManyToOne
 	private Lobby lobby;
 	

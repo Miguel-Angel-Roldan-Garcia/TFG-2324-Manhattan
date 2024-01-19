@@ -1,10 +1,11 @@
 package us.es.migrolgar2.manhattan.configuration;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -13,6 +14,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 import jakarta.servlet.DispatcherType;
 import us.es.migrolgar2.manhattan.user.CustomUserDetailsService;
@@ -26,6 +30,9 @@ public class WebSecurityConfig {
 	@Autowired
     private CustomUserDetailsService customUserDetailsService;
 	
+	@Autowired
+	private DataSource dataSource;
+	
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http.cors(Customizer.withDefaults())
@@ -37,10 +44,13 @@ public class WebSecurityConfig {
 					.requestMatchers("/", "/index").permitAll()
 					.requestMatchers("/favicon.ico").permitAll()
 					.requestMatchers("/signup").anonymous() 
-					.requestMatchers("/game-ws", "/lobby-ws", "/lobby-ws/**", "/topic/**", "/app/**")
-							.permitAll() // TODO: Change to actual routes
+					.requestMatchers("/game-ws", "/game-ws/**", "/lobby-ws", "/lobby-ws/**").permitAll()
 					// NOTE: Matches to /game/{Any number}/
-					.requestMatchers(RegexRequestMatcher.regexMatcher("^/game/[\\d]+$")).authenticated() 
+					.requestMatchers(RegexRequestMatcher.regexMatcher("^/game/[\\d]+$"),
+									 RegexRequestMatcher.regexMatcher("^/game/[\\d]+/get-data$"),
+									 RegexRequestMatcher.regexMatcher("^/game/[\\d]+/select-bocks$"),
+									 RegexRequestMatcher.regexMatcher("^/game/[\\d]+/play-turn"))
+							.authenticated() 
 					.requestMatchers(RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+$"),
 									 RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+/lobbyReload$"),
 									 RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+/start$"))
@@ -48,21 +58,6 @@ public class WebSecurityConfig {
 					.requestMatchers("/lobby/list", "/lobby/new", "/lobby/join").authenticated()
 					.anyRequest().denyAll() 
 			)
-//			.authorizeHttpRequests(requests -> requests
-//				.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR, DispatcherType.INCLUDE).permitAll()
-//				.requestMatchers(/*"/resources/**","/webjars/**", "/WEB-INF/**", "/error", */
-//								 "/favicon.ico", "/signup")
-//					.permitAll()
-//				.requestMatchers("/", "/game", "/index", "/game/**", "/topic/**", "/app/**", "/game-ws").permitAll()
-//				.anyRequest().denyAll()
-//				.requestMatchers("/**").permitAll()
-				
-//			)
-//			.authorizeHttpRequests((requests) -> requests
-//				.anyRequest().denyAll()
-//			)
-//			.httpBasic(withDefaults())
-//			.formLogin(Customizer.withDefaults())
 			.formLogin((form) -> form
 				.loginPage("/login")
 				.loginProcessingUrl("/login")
@@ -73,7 +68,10 @@ public class WebSecurityConfig {
 			.logout((logout) -> logout
 				.logoutSuccessUrl("/index")
 				.permitAll())
-			.sessionManagement(Customizer.withDefaults());
+			.sessionManagement(Customizer.withDefaults())
+			.rememberMe(rem -> rem
+				.tokenRepository(persistentTokenRepository())
+				.userDetailsService(customUserDetailsService));
 		
 		return http.build();
 	}
@@ -95,19 +93,16 @@ public class WebSecurityConfig {
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
+    
+    @Bean
+    PersistentTokenRepository persistentTokenRepository() {
+        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+        tokenRepository.setDataSource(dataSource);
+        return tokenRepository;
+    }
 
 //	@Bean
-//	public InMemoryUserDetailsManager userDetailsService() {
-//		UserDetails user = User.withUsername("1")
-//	            .password(passwordEncoder().encode("1"))
-//	            .roles("USER")
-//	            .build();
-//
-//		return new InMemoryUserDetailsManager(user);
-//	}
-	
-//	@Bean
-//	public CorsConfigurationSource corsConfigurationSource() {
+//	CorsConfigurationSource corsConfigurationSource() {
 //		CorsConfiguration configuration = new CorsConfiguration(); 
 //		configuration.setAllowedOrigins(Arrays.asList("http://localhost", "https://localhost", "ws://localhost"));
 //		configuration.setAllowedOriginPatterns(Arrays.asList());

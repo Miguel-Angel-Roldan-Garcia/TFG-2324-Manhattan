@@ -1,4 +1,4 @@
-package us.es.migrolgar2.manhattan.buildingCard;
+package us.es.migrolgar2.manhattan.card;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +17,11 @@ public class CardService {
 	private CardRepository cardRepository;
 
 	public void initializeCards(Game game) {
+		int globalCardIndex = 1;
 		for(int i = 1; i <= 9; i++) {
-			for(int j = 0; j < 5; j++) {
-				Card card = new Card(i, false, null, game);
+			// HINT: 5 cards of each type/sector. This is not cities!
+			for(int j = 1; j <= 5; j++) { 
+				Card card = new Card(i, globalCardIndex++, false, null, game);
 				this.cardRepository.save(card);
 			}
 		}
@@ -77,6 +79,22 @@ public class CardService {
 			c.setUsed(false);
 			this.cardRepository.save(c);
 		}
+	}
+
+	public Card findById(Integer id) {
+		return this.cardRepository.findById(id).orElse(null);
+	}
+
+	public Card save(Card card) {
+		return this.cardRepository.save(card);
+	}
+	
+	public Card findByPlayerAndIndex(PlayerDetails player, Integer cardIndex) {
+		return this.cardRepository.findByPlayerAndIndex_(player, cardIndex).orElse(null);
+	}
+
+	public List<Card> getAllByGameId(int gameId) {
+		return this.cardRepository.findAllByGameId(gameId);
 	}
 	
 }

@@ -1,4 +1,6 @@
-package us.es.migrolgar2.manhattan.buildingCard;
+package us.es.migrolgar2.manhattan.card;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
@@ -28,6 +30,11 @@ public class Card extends AbstractEntity {
 	@Max(value = 9)
 	private Integer sectorIndex;
 	
+	@NotNull
+	@Min(value = 1)
+	@Max(value = 55)
+	private Integer index_;
+	
 	private boolean used;
 	
 	@ManyToOne
@@ -36,6 +43,7 @@ public class Card extends AbstractEntity {
 	@ManyToOne
 	private Game game;
 	
+	@JsonIgnore
 	@Transient
 	public boolean isDrawn() {
 		return this.player != null;
