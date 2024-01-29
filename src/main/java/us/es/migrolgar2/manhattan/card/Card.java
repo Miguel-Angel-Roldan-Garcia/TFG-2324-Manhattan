@@ -1,5 +1,6 @@
 package us.es.migrolgar2.manhattan.card;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
@@ -40,6 +41,7 @@ public class Card extends AbstractEntity {
 	@ManyToOne
 	private PlayerDetails player;
 	
+	@JsonIgnore
 	@ManyToOne
 	private Game game;
 	
@@ -47,6 +49,16 @@ public class Card extends AbstractEntity {
 	@Transient
 	public boolean isDrawn() {
 		return this.player != null;
+	}
+	
+	@JsonGetter("player")
+	public String getPlayer() {
+		if(this.player != null) {
+			return this.player.getUsername();
+		} else {
+			return null;
+		}
+		
 	}
 	
 }

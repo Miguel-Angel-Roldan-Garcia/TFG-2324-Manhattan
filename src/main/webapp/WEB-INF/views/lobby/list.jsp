@@ -32,7 +32,7 @@
 	</div>
 	
 	<div>
-		<form:form id="form" action="/lobby/join" method="post" modelAttribute="lobby">
+		<form:form id="form" action="/lobby/join" method="post" modelAttribute="lobby" acceptCharset="UTF-8">
 
 		<form:errors path="*" element="div"/>
 		<br/>

@@ -1,4 +1,4 @@
-package us.es.migrolgar2.manhattan.block;
+package us.es.migrolgar2.manhattan.exceptions;
 
 public class BlockAlreadySelectedOrPlacedException extends Exception {
 

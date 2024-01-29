@@ -1,5 +1,7 @@
 package us.es.migrolgar2.manhattan.sector;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
@@ -16,7 +18,11 @@ public class SectorService {
 	}
 
 	public Sector findByCityAndIndex(City city, Integer sectorIndex) {
-		return this.sectorRepository.findByCityAndIndex_(city, sectorIndex).orElse(null);
+		return this.sectorRepository.findByCityAndIndex(city, sectorIndex).orElse(null);
+	}
+	
+	public List<Sector> getSectorsByCity(City city) {
+		return this.sectorRepository.findAllByCity(city);
 	}
 	
 }

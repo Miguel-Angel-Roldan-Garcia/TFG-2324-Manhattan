@@ -7,7 +7,7 @@
 
 <body>
 <%-- 	<form:form id="form" name="newUser" action="/login" method="post"> --%>
-	<form:form action="/login" method="post">
+	<form:form action="/login" method="post" acceptCharset="UTF-8">
 
 		<form:errors path="*" element="div"/>
 

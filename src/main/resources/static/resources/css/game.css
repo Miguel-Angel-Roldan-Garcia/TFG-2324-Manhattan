@@ -7,6 +7,11 @@ html, body {
 	overflow-y: None;
 }
 
+::placeholder {
+	color: #ffffff;
+	opacity: 1;
+}
+
 #loading-overlay {
     display: flex;
 	position: fixed;
@@ -15,7 +20,7 @@ html, body {
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 1);
-	z-index: 9998;
+	z-index: 9997;
 	justify-content: center;
 	align-items: center;
 }

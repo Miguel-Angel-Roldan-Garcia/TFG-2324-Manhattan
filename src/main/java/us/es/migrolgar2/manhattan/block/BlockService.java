@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
+import us.es.migrolgar2.manhattan.game.Game;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
 import us.es.migrolgar2.manhattan.sector.Sector;
 
@@ -58,6 +59,14 @@ public class BlockService {
 
 	public List<Block> getAllByGameId(int gameId) {
 		return this.blockRepository.getAllByGameId(gameId);
+	}
+
+	public List<Block> getBlocksSelectedByPlayer(PlayerDetails player) {
+		return this.blockRepository.findAllBlocksSelectedByPlayer(player);
+	}
+	
+	public List<Block> getBlocksByGameAndCityIndex(Game game, int cityIndex) {
+		return this.blockRepository.findBlocksByGameAndCityIndex(game, cityIndex);
 	}
 
 }

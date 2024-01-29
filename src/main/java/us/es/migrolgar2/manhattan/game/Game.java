@@ -23,8 +23,10 @@ public class Game extends AbstractEntity {
 	
 	private int turnNumber;
 	
+	@JsonIgnore
 	private LocalDateTime startDate;
 	
+	@JsonIgnore
 	private LocalDateTime finishDate;
 	
 	@JsonIgnore

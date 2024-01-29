@@ -1,8 +1,5 @@
-
-const maxRetries = 3;
-let retryCount = 0;
-
-async function fetchData(url) {
+export default async function fetchData(url, maxRetries) {
+	let retryCount = 0;
 	while (retryCount < maxRetries) {
 		try {
 			const response = await fetch(url);
@@ -12,7 +9,6 @@ async function fetchData(url) {
 			}
 
 			const data = await response.json();
-			retryCount = 0;
 			return data;
 		} catch (error) {
 			console.error('Fetch error:', error);
@@ -24,6 +20,5 @@ async function fetchData(url) {
 		}
 	}
 	
-	retryCount = 0;
 	throw new Error('Max retries reached. Unable to fetch data.');
 }

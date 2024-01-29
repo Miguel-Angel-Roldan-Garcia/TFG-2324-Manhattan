@@ -170,6 +170,7 @@ public class LobbyController {
 	public String getStartGame(@PathVariable("id") int id, Model model) {
 		// TODO Check if players are ready
 		// TODO Check if the owner prompted the start
+		// TODO IMPORTANT Check if game is already created
 		
 		Lobby lobby = this.lobbyService.findById(id);
 		lobby.setAvailable(false);

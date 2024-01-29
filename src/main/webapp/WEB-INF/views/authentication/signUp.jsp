@@ -6,7 +6,7 @@
 <html>
 
 <body>
-	<form:form id="form" action="/signup" method="post" modelAttribute="user">
+	<form:form id="form" action="/signup" method="post" modelAttribute="user" acceptCharset="UTF-8">
 	
 		<form:errors path="*" element="div"/>
 		

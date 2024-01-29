@@ -6,7 +6,7 @@
 <html>
 
 <body>
-	<form:form id="form" action="/lobby/new" method="post" modelAttribute="lobby">
+	<form:form id="form" action="/lobby/new" method="post" modelAttribute="lobby" acceptCharset="UTF-8">
 
 		<label for="name" class="formLabel">Name of the lobby</label>
 		<form:input type="text" path="name"/>

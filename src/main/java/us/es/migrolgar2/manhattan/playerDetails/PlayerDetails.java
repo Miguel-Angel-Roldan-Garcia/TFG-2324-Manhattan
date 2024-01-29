@@ -28,7 +28,6 @@ public class PlayerDetails extends AbstractEntity {
 	
 	@NotNull
 	@Min(value = 0)
-	@Max(value = 96) 
 	private Integer score;	
 	
 	@NotNull
@@ -62,5 +61,9 @@ public class PlayerDetails extends AbstractEntity {
 	@JsonGetter("color")
 	public String getColorCode() {
 		return color.getColorCode();
+	}
+	
+	public void addScore(Integer score) {
+		this.score += score;
 	}
 }

@@ -11,8 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import us.es.migrolgar2.manhattan.block.BlockAlreadySelectedOrPlacedException;
+import us.es.migrolgar2.manhattan.exceptions.BlockAlreadySelectedOrPlacedException;
 import us.es.migrolgar2.manhattan.exceptions.NotOwnedException;
+import us.es.migrolgar2.manhattan.exceptions.PlayerHasAlreadySelectedBlocks;
 import us.es.migrolgar2.manhattan.game.messages.SelectBlocksMessage;
 import us.es.migrolgar2.manhattan.game.messages.TurnMessage;
 
@@ -31,6 +32,7 @@ public class GameController {
 			return "redirect:/index";
 		}
 		
+		model.addAttribute("username", principal.getName());
 		model.addAttribute("gameId", gameId);
 		return "game";
 	}
@@ -41,11 +43,14 @@ public class GameController {
 		Game game = this.gameService.findById(gameId);
 		if(!game.isRoundPlaying() && msg.isValid() && msg.isOwnedBy(principal.getName())) {
 			try {
+
 				this.gameService.selectBlocksByPlayerAndIndexes(principal.getName(), gameId, msg.getSelectedBlockIds());
 				this.gameService.checkIfAllPlayersHaveSelectedBlocks(game);
 				
 			} catch(BlockAlreadySelectedOrPlacedException|NotOwnedException e) {
 				return null;
+			} catch(PlayerHasAlreadySelectedBlocks e) {
+				return this.gameService.getSelectedBlocksMsg(gameId, principal.getName());
 			}
 		} else {
 			return null;

@@ -2,7 +2,7 @@ package us.es.migrolgar2.manhattan.utils;
 
 import java.util.Map;
 
-public class SectorIndexPositionConverter {
+public class SectorIndexLocalToGlobalConverter {
 	
 	private static final Map<Integer, Integer> position2Map = Map.of(
 			1, 3,
@@ -44,15 +44,15 @@ public class SectorIndexPositionConverter {
 	public static Integer convertIndex(Integer index, Integer position) {
 		switch(position) {
 		case 1:
-			return position;
+			return index;
 		case 2:
-			return position2Map.get(position);
+			return position2Map.get(index);
 		case 3:
-			return position3Map.get(position);
+			return position3Map.get(index);
 		case 4:
-			return position4Map.get(position);
+			return position4Map.get(index);
 		default:
-			throw new IllegalArgumentException("Unexpected value: " + position);
+			throw new IllegalArgumentException("Unexpected position value: " + position);
 		}
 	}
 }

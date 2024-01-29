@@ -1,11 +1,11 @@
 
-export default class GameChat extends Phaser.GameObjects.Container {
+export default class GameChat2 extends Phaser.GameObjects.Container {
 	
-	constructor (scene, x, y, width, height, stompClient, graphics, gameId) {
+	constructor (scene, x, y, width, height, stompClient, gameId, graphics) {
 		super(scene, x, y)
 		this.scene = scene;
-		this.graphics = graphics;
 		this.gameId = gameId;
+		this.graphics = graphics;
 		
 		//General params of the chat container and text
 		
@@ -34,14 +34,14 @@ export default class GameChat extends Phaser.GameObjects.Container {
 			}
 		}
 		
-		this.graphics.fillStyle(0x000000, 0);
 		// Mask to not overflow text when it is too long
+		
 	    let maskShape = new Phaser.Geom.Rectangle(this.x + this.marginX,
 	    										  this.y + this.marginY, 
 	    										  this.textWidth, 
 	    										  this.usableHeight);
         this.textMask = this.graphics.fillRectShape(maskShape);
-		
+        
 		// TODO Change the text objects to bitmap objects
 		// Input text object for sending messages 
 		const inputTextConfig = {
@@ -81,9 +81,12 @@ export default class GameChat extends Phaser.GameObjects.Container {
 		
 		this.stompClient = stompClient;
 		
-	    this.stompClient.subscribe('/game/'+ this.gameId + '/chat', (ChatMessage) => {
-	        this.addMessage(JSON.parse(ChatMessage.body).msg);
-	    });
+		this.stompClient.connect({}, (frame) => {
+		    console.log('Connected: ' + frame);
+		    this.stompClient.subscribe('/game/'+ this.gameId + '/chat', (ChatMessage) => {
+		        this.addMessage(JSON.parse(ChatMessage.body).msg);
+		    });
+		});
 		
 		// Interactive scroll of the chat
 		this.setInteractive();
@@ -175,17 +178,13 @@ export default class GameChat extends Phaser.GameObjects.Container {
 			msgTextObject = this.scene.add.text(this.marginX, this.msgY, message, this.textStyle);
 		}
 		
-		msgTextObject.setMask(this.textMask.createGeometryMask());
+		msgTextObject.setMask(this.textMask.createGeometryMask(this.graphics));
 		this.add(msgTextObject);
 		this.messages.push(msgTextObject);
 		
-		if(this.messages.length > 15) {
-			this.messages.shift();
-		}
-		
 	}
 	
-	 // Function to move the text up
+	 // Function to scroll the text up
     scrollTextUp() {
 		if(this.getLastMessage().y > this.marginY) {
 			const movedHeight = 5;
@@ -198,9 +197,9 @@ export default class GameChat extends Phaser.GameObjects.Container {
 		}
     };
 
-    // Function to move the text down
+    // Function to scroll the text down
     scrollTextDown() {
-        if (this.messages[0].y < this.marginY) {
+        if (this.messages[0].y < 0) {
 			const movedHeight = 5;
 			
 			this.msgY += movedHeight;

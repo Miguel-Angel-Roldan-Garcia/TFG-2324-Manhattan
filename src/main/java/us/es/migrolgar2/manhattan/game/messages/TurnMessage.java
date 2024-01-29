@@ -40,7 +40,7 @@ public class TurnMessage implements Serializable {
 		res &= playedCardIndex  != null && playedCardIndex  >= 1 && playedCardIndex  <= 45;
 		res &= placedBlockIndex != null && placedBlockIndex >= 1 && placedBlockIndex <= 96;
 		res &= cityIndex        != null && cityIndex        >= 1 && cityIndex        <= 6;
-		res &= sectorIndex      != null && sectorIndex      >= 1 && sectorIndex      <= 9;
+//		res &= sectorIndex      != null && sectorIndex      >= 1 && sectorIndex      <= 9;
 		
 		return res;
 	}
