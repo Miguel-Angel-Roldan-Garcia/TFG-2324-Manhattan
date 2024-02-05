@@ -26,7 +26,7 @@ public class User extends AbstractEntity {
 	private static final long serialVersionUID = 1L;
 
     @NotBlank
-    @Length(max = 20)
+    @Length(max = 15)
     @Column(unique = true)
     private String username;
     

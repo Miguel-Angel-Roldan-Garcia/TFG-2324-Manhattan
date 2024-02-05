@@ -1,59 +1,64 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
+<%@ taglib prefix="manhattan" tagdir="/WEB-INF/tags"%>
 
-<!doctype html>
-<html>
-<head>
-	<meta charset="UTF-8">
-	<style>
-		li.pointer-hover:hover {
-			cursor: pointer;
-		}
-	</style>
-</head>
-
-<body>
-	<h2>Lobbies of your friends</h2>
-	<div>
-		<ul>
-			<c:forEach var="friendLobby" items="${friendsLobbies}">
-				<li class="pointer-hover" onclick="setFormName('${friendLobby.getName()}')"><c:out value="${friendLobby.getName()}"/></li>
-			</c:forEach>
-		</ul>
-	</div>
-	<h2>Public lobbies</h2>
-	<div>
-		<ul>
-			<c:forEach var="publicLobby" items="${publicLobbies}">
-				<li class="pointer-hover" onclick="setFormName('${publicLobby.getName()}')"><c:out value="${publicLobby.getName()}"/></li>
-			</c:forEach>
-		</ul>
-	</div>
-	
-	<div>
-		<form:form id="form" action="/lobby/join" method="post" modelAttribute="lobby" acceptCharset="UTF-8">
-
-		<form:errors path="*" element="div"/>
-		<br/>
-
-		<div>
-			<label for="name" class="formLabel">Name of the lobby</label>
-			<form:input id="formNameInput" type="text" path="name"/>
-			<form:errors path="name"/>
+<manhattan:manhattanPage>
+	<div class="lobby-list-main-container">
+		<div class="lobby-list-title-container">
+			<h1 class="title-text">¡Bienvenido a Manhattan!</h1>
 		</div>
 		
 		<div>
-			<label for="password" class="formLabel">Optional password of the lobby</label>
-			<form:input type="password" path="password"/>
-			<form:errors path="password"/>
+			<h2>Mis salas</h2>
+			<ul>
+				<c:forEach var="ownedLobby" items="${ownedLobbies}">
+					<li class="pointer-hover" onclick="setFormName('${ownedLobby.getName()}')"><c:out value="${ownedLobby.getName()}"/></li>
+				</c:forEach>
+			</ul>
 		</div>
-		<br/>
-
-		<input type="submit" value="Join lobby">
-	</form:form>
+		
+		<div>
+			<h2>Salas de amigos</h2>
+			<ul>
+				<c:forEach var="friendLobby" items="${friendsLobbies}">
+					<li class="pointer-hover" onclick="setFormName('${friendLobby.getName()}')"><c:out value="${friendLobby.getName()}"/></li>
+				</c:forEach>
+			</ul>
+		</div>
+		
+		<div>
+			<h2>Salas públicas</h2>
+			<ul>
+				<c:forEach var="publicLobby" items="${publicLobbies}">
+					<li class="pointer-hover" onclick="setFormName('${publicLobby.getName()}')"><c:out value="${publicLobby.getName()}"/></li>
+				</c:forEach>
+			</ul>
+		</div>
+		
+		<div>
+			<form:form id="form" action="/lobby/join" method="post" modelAttribute="lobby" acceptCharset="UTF-8">
+	
+			<form:errors path="*" element="div"/>
+			<br/>
+	
+			<div>
+				<label for="name">Nombre de la sala</label>
+				<form:input id="formNameInput" type="text" path="name"/>
+				<form:errors path="name"/>
+			</div>
+			
+			<div>
+				<label for="password">Contraseña opcional de la sala</label>
+				<form:input type="password" path="password"/>
+				<form:errors path="password"/>
+			</div>
+			<br/>
+	
+			<input type="submit" value="Join lobby" class="form-submit-button">
+		</form:form>
+		</div>
 	</div>
-</body>
 
 <script>
 function setFormName(name) {
@@ -61,4 +66,4 @@ function setFormName(name) {
 }
 </script>
 
-</html>
+</manhattan:manhattanPage>

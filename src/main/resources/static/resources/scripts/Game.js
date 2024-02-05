@@ -61,7 +61,6 @@ export default class Game extends Phaser.Scene {
 		const backgroundYScale = vh / this.background.height;
 		this.background.setScale(Math.max(backgroundXScale, backgroundYScale));
 		this.background.setDepth(-2);
-//		this.background.destroy();
 		
 		// Loading data objects
 		this.stompClient = data.stompClient;
@@ -350,7 +349,7 @@ export default class Game extends Phaser.Scene {
 			placeholder: "(Amount)",
 			fontFamily: "Arial",
 			fontSize: '30px',
-			color: '#000000'
+			color: '#FFFFFF'
 		}
 		
 		let tempObjects = [graphics];

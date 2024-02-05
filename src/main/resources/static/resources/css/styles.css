@@ -1,0 +1,267 @@
+
+* {
+	font-family: Arial;
+}
+
+html, body {
+	width: 100%;
+	height: 100%;
+	
+	color: #000000;
+	background: #ffffff;
+	
+	margin: 0px;
+}
+
+body.dark-theme {
+	color: #ffffff;
+	background: #000000;
+}
+
+.main-content {
+	width: 100%;
+	height: 100%;
+	
+	margin: 0px;
+	overflow: auto;
+}
+
+.form-submit-button {
+	display: inline-block;
+    padding: 10px 20px;
+    margin: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-submit-button:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.title-text {
+	font-size: 48px;
+}
+
+.large-text {
+	font-size: 30px;
+}
+
+.pointer-hover:hover {
+	cursor: pointer;
+}
+
+/* 
+ * Index styles
+ *
+ */
+.index-main-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.index-title-container {
+	margin: 5% 5% 10% 5%;
+}
+
+.index-links {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.index-links-list {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	
+	margin: 10px;
+}
+
+.index-links-list a {
+	display: inline-block;
+    padding: 10px 20px;
+    margin: 10px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #007bff;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.index-links-list a:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+
+/* 
+ * Login styles 
+ *
+ */
+.login-main-container {
+	width: 100%;
+	height: 100%;
+	
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.login-main-container * {
+	margin: 8px 4px;
+}
+
+.login-title-container {
+	margin: 5% 5% 10% 5%;
+}
+
+/* 
+ * Lobby styles 
+ *
+ */
+.lobby-list-main-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.lobby-list-main-container * {
+	margin: 8px 4px;
+}
+
+.lobby-list-title-container {
+	margin: 5% 5% 10% 5%;
+}
+
+.lobby-player-color-div {
+	border-style: solid;
+	border-color: #000000;
+	border-width: 5px;
+	height: 40%;
+	width: 10%;
+}
+
+.lobby-main-container {
+	display: flex;
+	flex-direction: column;
+	
+	margin: 1%;
+	height: 96%;
+}
+
+.lobby-title-container {
+	margin: 1%;
+}
+
+.lobby-player-list-container {
+	width: 50%;
+	margin: 0% 4%;
+	
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.lobby-player-container {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+	
+	margin-top: 2%;
+	margin-bottom: auto;
+	
+	background: rgba(200, 200, 200, 0.8);
+}
+
+.lobby-footer-container {
+	display: flex;
+	flex-direction: row-reverse;
+}
+
+.lobby-footer-errors-container {
+	display: flex;
+	flex-direction: row;
+	flex: 1;
+	
+	padding-inline: 2%;
+}
+
+.lobby-content {
+	height: 60%;
+	
+	display: flex;
+	flex: 1;
+	flex-direction: row;
+}
+
+.lobby-chat-container {
+	width: 50%;
+	
+	display: flex;
+	flex-direction: column;
+}
+
+.lobby-chat-container-messages {
+	width: 95%;
+	height: 80%;
+	margin: 3%;
+	
+	overflow: auto;
+}
+
+.lobby-chat-container-messages * {
+	width: 90%;
+	margin: 2% 5%;
+}
+
+.lobby-chat-input-container {
+	width: 80%;
+	margin: 2% 5%;
+	
+	display: flex;
+	flex-direction: row;
+}
+
+.chat-text {
+	width: 80%;
+	margin-right: 20px;
+	padding: 0px 10px;
+	
+	font-family: "Arial";
+	font-size: 26px;
+}
+
+
+/* 
+ * How to play styles 
+ *
+ */
+.info-main-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.info-title-container{
+	margin: 2%;
+}
+
+.info-text-container {
+	margin: 0% 4% 4% 4%;
+}
+

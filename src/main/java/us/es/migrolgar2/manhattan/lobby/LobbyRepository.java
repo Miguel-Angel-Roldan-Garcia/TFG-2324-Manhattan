@@ -11,8 +11,11 @@ import org.springframework.data.repository.query.Param;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
 
 public interface LobbyRepository extends JpaRepository<Lobby, Integer> {
+	
+	@Query("SELECT pd.lobby FROM PlayerDetails pd WHERE pd.isLobbyOwner AND pd.username = :username")
+	Set<Lobby> getOwnedLobbies(@Param("username") String username);
 
-	@Query("SELECT pd.lobby FROM PlayerDetails pd WHERE pd.position = 1 AND pd.lobby.privacyStatus != 'PRIVATE' AND pd.username IN :friendsUsernames")
+	@Query("SELECT pd.lobby FROM PlayerDetails pd WHERE pd.isLobbyOwner AND pd.lobby.privacyStatus != 'PRIVATE' AND pd.username IN :friendsUsernames")
 	Set<Lobby> getLobbiesOwnedByFriends(@Param("friendsUsernames") List<String> friendsUsernames);
 	
 	@Query("SELECT l FROM Lobby l WHERE l.privacyStatus = 'PUBLIC'")

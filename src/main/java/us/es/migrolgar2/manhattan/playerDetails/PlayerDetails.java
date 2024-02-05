@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -42,6 +41,8 @@ public class PlayerDetails extends AbstractEntity {
 	
 	private boolean playing;
 	
+	private boolean isLobbyOwner;
+	
 	@NotBlank
 	private String username;
 	
@@ -52,11 +53,6 @@ public class PlayerDetails extends AbstractEntity {
 	@JsonIgnore
 	@ManyToOne
 	private Lobby lobby;
-	
-	@Transient
-	public boolean isLobbyOwner() {
-		return this.position == 1;
-	}
 	
 	@JsonGetter("color")
 	public String getColorCode() {

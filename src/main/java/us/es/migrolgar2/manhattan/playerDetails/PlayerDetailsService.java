@@ -30,4 +30,16 @@ public class PlayerDetailsService {
 		return this.playerDetailsRepository.findByUsernameAndGame(username, game).orElse(null);
 	}
 	
+	public PlayerDetails findByPositionAndLobbyId(int position, int id) {
+		return this.playerDetailsRepository.findByPositionAndLobbyId(position, id).orElse(null);
+	}
+
+	public PlayerDetails findByUsernameAndLobbyId(String username, int id) {
+		return this.playerDetailsRepository.findByUsernameAndLobbyId(username, id).orElse(null);
+	}
+
+	public void delete(PlayerDetails pd) {
+		this.playerDetailsRepository.delete(pd);
+	}
+	
 }

@@ -41,7 +41,7 @@ public class WebSecurityConfig {
 			.authorizeHttpRequests(requests -> requests
 					.dispatcherTypeMatchers(DispatcherType.FORWARD, DispatcherType.ERROR, DispatcherType.INCLUDE).permitAll()
 					.requestMatchers("/resources/**","/webjars/**", "/WEB-INF/**").permitAll()
-					.requestMatchers("/", "/index").permitAll()
+					.requestMatchers("/", "/index", "/about", "/how-to-play").permitAll()
 					.requestMatchers("/favicon.ico").permitAll()
 					.requestMatchers("/signup").anonymous() 
 					.requestMatchers("/game-ws", "/game-ws/**", "/lobby-ws", "/lobby-ws/**").permitAll()
@@ -61,7 +61,7 @@ public class WebSecurityConfig {
 			.formLogin((form) -> form
 				.loginPage("/login")
 				.loginProcessingUrl("/login")
-				.defaultSuccessUrl("/index")
+				.defaultSuccessUrl("/index", true)
 				.failureUrl("/login?error") 
 				.permitAll()
 			)

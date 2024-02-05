@@ -24,6 +24,10 @@ public class LobbyService {
 	public Lobby save(Lobby lobby) {
 		return this.lobbyRepository.save(lobby);
 	}
+	
+	private Set<Lobby> getOwnedLobbiesByUsername(String username) {
+		return this.lobbyRepository.getOwnedLobbies(username);
+	}
 
 	public Set<Lobby> getLobbiesOwnedByFriends(List<String> friendsUsernames) {
 		return this.lobbyRepository.getLobbiesOwnedByFriends(friendsUsernames);
@@ -65,6 +69,9 @@ public class LobbyService {
 	}
 
 	public Model loadLobbyList(Model model, String username) {
+		Set<Lobby> ownedLobbies = this.getOwnedLobbiesByUsername(username);
+		model.addAttribute("ownedLobbies", ownedLobbies);
+		
 		List<String> friendsUsernames = this.friendshipService.findAllFriendsUsernames(username);
 		Set<Lobby> friendsLobbies = this.getLobbiesOwnedByFriends(friendsUsernames);
 		model.addAttribute("friendsLobbies", friendsLobbies);
@@ -106,6 +113,10 @@ public class LobbyService {
 										.map(pd -> pd.getUsername())
 										.toList();
 		return playerUsernames.contains(username);
+	}
+
+	public void delete(int lobbyId) {
+		this.lobbyRepository.deleteById(lobbyId);
 	}
 	
 }
