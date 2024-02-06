@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>us.es.migrolgar2</groupId>
 	<artifactId>manhattan</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0-Alpha</version>
 	<name>Manhattan</name>
 	<description>TFG: Manhattan online board game.</description>
 	<properties>
@@ -78,6 +78,11 @@
 			<artifactId>mariadb-java-client</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+	        <groupId>org.postgresql</groupId>
+	        <artifactId>postgresql</artifactId>
+	        <scope>runtime</scope>
+	    </dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -150,6 +155,9 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+					<image>
+                        <name>Manhattan</name>
+                    </image>
 				</configuration>
 			</plugin>
 		</plugins>

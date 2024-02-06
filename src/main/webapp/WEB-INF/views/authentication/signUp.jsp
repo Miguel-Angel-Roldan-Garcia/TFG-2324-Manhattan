@@ -9,23 +9,27 @@
 			<h1 class="title-text">Login</h1>
 		</div>
 		
-		<form:form id="form" action="/signup" method="post" modelAttribute="user" acceptCharset="UTF-8">
+		<form:form id="form" action="/signup" method="post" modelAttribute="signUpForm" acceptCharset="UTF-8">
 		
-			<form:errors path="*" element="div"/>
+			<form:errors path="" element="div"/>
 			
 			<div>
 				<label for="username" class="formLabel">Username</label>
-				<form:input type="text" path="username" class="inputText" placeholder="Your username.."/>
+				<form:input type="text" path="username" class="inputText" placeholder="Su nombre de usuario.."/>
 				<form:errors path="username"/>
 			</div>
 			
 			<div>
-				<label for="password" class="formLabel">Password</label>
-				<form:input type="password" path="password" class="inputText" placeholder="Your password.."/>
+				<label for="password" class="formLabel">Contraseña</label>
+				<form:input type="password" path="password" class="inputText" placeholder="Su contraseña.."/>
 				<form:errors path="password"/>
 			</div>
 			
-			<form:input type="hidden" path="enabled"/>
+			<div>
+				<label for="accessCode" class="formLabel">Codigo de acceso</label>
+				<form:input type="accessCode" path="accessCode" class="inputText" placeholder="El código de acceso proporcionado"/>
+				<form:errors path="accessCode"/>
+			</div>
 	
 			<input type="submit" value="Sign in" class="form-submit-button">
 		</form:form>
