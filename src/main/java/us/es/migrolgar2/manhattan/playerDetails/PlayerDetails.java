@@ -43,6 +43,8 @@ public class PlayerDetails extends AbstractEntity {
 	
 	private boolean isLobbyOwner;
 	
+	private boolean isAIControlled = false;
+	
 	@NotBlank
 	private String username;
 	

@@ -237,7 +237,7 @@
 			for(let i = 1; i <= 4; i++) {
 				let playerDiv = document.getElementById("player" + i);
 				const ready = playerDiv.getElementsByTagName("p")[0].innerHTML;
-				if(ready != "Listo") {
+				if(ready != "Listo" && document.getElementById("player" + i).style.display !== "none") {
 					document.getElementById("errors").innerHTML = "Algún jugador no está listo";
 					return;
 				}

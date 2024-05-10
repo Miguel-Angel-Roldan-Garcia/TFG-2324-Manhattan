@@ -69,4 +69,8 @@ public class BlockService {
 		return this.blockRepository.findBlocksByGameAndCityIndex(game, cityIndex);
 	}
 
+	public List<Block> getAvailableBlocksByPlayer(PlayerDetails pd) {
+		return this.blockRepository.findAvailableBlocksByPlayer(pd);
+	}
+
 }

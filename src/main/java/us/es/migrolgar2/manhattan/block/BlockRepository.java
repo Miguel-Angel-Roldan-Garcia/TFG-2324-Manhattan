@@ -31,4 +31,7 @@ public interface BlockRepository extends JpaRepository<Block, Integer> {
 	@Query("SELECT b FROM Block b WHERE b.player.game = :game AND b.sector.city.index_ = :cityIndex")
 	List<Block> findBlocksByGameAndCityIndex(@Param("game") Game game, @Param("cityIndex") int cityIndex);
 
+	@Query("SELECT b FROM Block b WHERE b.player = :pd AND NOT b.selected AND NOT b.placed")
+	List<Block> findAvailableBlocksByPlayer(PlayerDetails pd);
+
 }

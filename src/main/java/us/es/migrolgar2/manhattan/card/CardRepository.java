@@ -21,5 +21,8 @@ public interface CardRepository extends JpaRepository<Card, Integer> {
 	Optional<Card> findByPlayerAndIndex_(@Param("pd") PlayerDetails player, @Param("cardIndex") Integer cardIndex);
 
 	List<Card> findAllByGameId(int gameId);
+
+	@Query("SELECT c FROM Card c WHERE c.player = :pd")
+	List<Card> findByPlayer(@Param("pd") PlayerDetails pd);
 	
 }

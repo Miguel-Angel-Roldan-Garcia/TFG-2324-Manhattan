@@ -7,11 +7,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import us.es.migrolgar2.manhattan.ai.AIService;
 import us.es.migrolgar2.manhattan.block.Block;
 import us.es.migrolgar2.manhattan.block.BlockService;
 import us.es.migrolgar2.manhattan.card.Card;
@@ -41,6 +44,8 @@ public class GameService {
 	private CardService cardService;
 	private CityService cityService;
 	private SectorService sectorService;
+	private final SimpMessagingTemplate simpMessagingTemplate;
+	private AIService aiService;
 	
 	public Game save(Game game) {
 		return this.gameRepository.save(game);
@@ -59,9 +64,10 @@ public class GameService {
 		}
 		
 		List<PlayerDetails> gamePlayers = this.gameRepository.getGamePlayerDetails(game);
+		List<PlayerDetails> humanPlayers = gamePlayers.stream().filter(pd -> !pd.isAIControlled()).collect(Collectors.toList());
 		
 		Comparator<PlayerDetails> c = Comparator.comparing(pd -> this.userService.findByUsername(pd.getUsername()).getAge());
-		PlayerDetails olderPlayer = Collections.max(gamePlayers, c);
+		PlayerDetails olderPlayer = Collections.max(humanPlayers, c);
 		olderPlayer.setPlaying(true);
 		olderPlayer = this.playerDetailsService.save(olderPlayer);
 		
@@ -126,34 +132,34 @@ public class GameService {
 	}
 
 	@Transactional
-	public TurnMessage playTurn(int gameId, String username, TurnMessage msg) {
+	public Boolean playTurn(int gameId, String username, TurnMessage msg) {
 		// Is message valid and owned by the principal?
 		if(!msg.isValid() || !msg.isOwnedBy(username)) {
-			return null;
+			return false;
 		}
 		
 		// Is a round ongoing?
 		Game game = this.findById(gameId);
 		if(!game.isRoundPlaying()) {
-			return null;
+			return false;
 		}
 		
 		// Is it the principal's turn?
 		PlayerDetails principalDetails = this.playerDetailsService.findByUsernameAndGame(msg.getUsername(), game);
 		if(!principalDetails.isPlaying()) {
-			return null;
+			return false;
 		}
 		
 		// Is the used card drawn by the principal?
 		Card card = this.cardService.findByPlayerAndIndex(principalDetails, msg.getPlayedCardIndex());
 		if(!card.isDrawn()) {
-			return null;
+			return false;
 		}
 		
 		// Is the block owned by principal, selected and not already placed?
 		Block block = this.blockService.findByPlayerAndIndex(principalDetails, msg.getPlacedBlockIndex());
 		if(block.isPlaced() || !block.isSelected() || !block.getPlayer().equals(principalDetails)) {
-			return null;
+			return false;
 		}
 		
 		// Is the sector selected the correct place defined by card?
@@ -181,7 +187,7 @@ public class GameService {
 						   						   	   .mapToInt(b -> b.getSize())
 						   						   	   .sum();
 				if(principalStories + storiesAdded < ownerStories) {
-					return null;
+					return false;
 				}
 			}
 		}
@@ -210,10 +216,11 @@ public class GameService {
 		// Set the user who is playing next
 		Integer nextPosition = (principalDetails.getPosition() % 4) + 1;
 		List<PlayerDetails> players = this.gameRepository.getGamePlayerDetails(game);
+		PlayerDetails nextPlayer = null;
 		for(PlayerDetails pd:players) {
 			if(pd.getPosition() == nextPosition) {
 				pd.setPlaying(true);
-				this.playerDetailsService.save(pd);
+				nextPlayer = this.playerDetailsService.save(pd);
 				break;
 			}
 		}
@@ -247,7 +254,22 @@ public class GameService {
 		}
 		this.save(game);
 		
-		return msg;
+		this.simpMessagingTemplate.convertAndSend("/game/" + gameId + "/play-turn", msg);
+		
+		/*
+		if(nextPlayer.isAIControlled()) {
+			TurnMessage nextTurn;
+			Boolean result; 
+			
+			do {
+				nextTurn = aiService.calculatePlacingTurn(nextPlayer);
+				result = this.playTurn(gameId, nextPlayer.getUsername(), nextTurn);
+			} while(!result);
+			
+		}
+		*/
+		
+		return true;
 	}
 
 	@Transactional
@@ -337,13 +359,30 @@ public class GameService {
 
 	public void checkIfAllPlayersHaveSelectedBlocks(Game game) {
 		List<PlayerDetails> players = this.gameRepository.getGamePlayerDetails(game);
+		List<PlayerDetails> humanPlayers = players.stream().filter(pd -> !pd.isAIControlled()).toList();
+		List<PlayerDetails> AIPlayers = players.stream().filter(pd -> pd.isAIControlled()).toList();
 		
 		boolean res = true;
-		for(int i = 0; i < players.size() && res; i++) {
-			res = players.get(i).isHasSelectedBlocks();
+		for(int i = 0; i < humanPlayers.size() && res; i++) {
+			res = humanPlayers.get(i).isHasSelectedBlocks();
 		}
 		
 		if(res) {
+			for(PlayerDetails pd:AIPlayers) {
+				Integer[] selectedBlocks = aiService.calculateSelectBlocks(pd);
+				try {
+					this.selectBlocksByPlayerAndIndexes(pd.getUsername(), game.getId(), selectedBlocks);
+					SelectBlocksMessage msg = new SelectBlocksMessage(pd.getUsername(), selectedBlocks);
+					this.simpMessagingTemplate.convertAndSend("/game/" + game.getId() + "/select-blocks", msg);;
+				} catch (BlockAlreadySelectedOrPlacedException e) {
+					e.printStackTrace();
+				} catch (NotOwnedException e) {
+					e.printStackTrace();
+				} catch (PlayerHasAlreadySelectedBlocks e) {
+					e.printStackTrace();
+				}
+			}
+			
 			game.setRoundPlaying(true);
 			this.save(game);
 		}

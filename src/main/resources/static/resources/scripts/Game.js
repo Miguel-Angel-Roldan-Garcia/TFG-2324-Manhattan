@@ -26,6 +26,8 @@ export default class Game extends Phaser.Scene {
 			"WAITING": 4
 		};
 		this.gameState = this.gameStates.SELECTINGBLOCKS;
+		this.receivedTurns = [];
+		this.processingTurn = false;
 		
 		// Card data
 		this.cards = {};
@@ -45,6 +47,7 @@ export default class Game extends Phaser.Scene {
 		
 		// Misc
 		this.tempSelectBlocksObjects;
+		this.isSelectBlocksVisible;
 		this.infoBlocksGraphics;
 		this.cityPointerOverTurnFunction;
 		this.cityPointerOutTurnFunction;
@@ -206,7 +209,8 @@ export default class Game extends Phaser.Scene {
 	    });
 	    
 	    this.stompClient.subscribe('/game/'+ gameId + '/play-turn', (turnMsg) => {
-	        this.processTurn(JSON.parse(turnMsg.body));
+			this.receivedTurns.push(JSON.parse(turnMsg.body));
+	        this.processTurn();
 	    });
 		
 		// Determine state of the game
@@ -512,7 +516,21 @@ export default class Game extends Phaser.Scene {
 			
 		});
 		
+		player.toggleSelectBlocks.on("pointerup", () => {
+			this.toggleSelectBlocksVisibility(tempObjects)
+		});
+		
 		tempObjects.push(button);
+		this.isSelectBlocksVisible = true;
+	}
+	
+	toggleSelectBlocksVisibility(tempObjects) {
+		if(tempObjects != null) {
+			for(let obj of tempObjects) {
+				obj.alpha = this.isSelectBlocksVisible ? 0 : 1;
+			}
+			this.isSelectBlocksVisible = !this.isSelectBlocksVisible;
+		}
 	}
 	
 	selectBlocksEventHandler(selectBlocksMsg) {
@@ -521,6 +539,7 @@ export default class Game extends Phaser.Scene {
 				obj.destroy();
 			}
 			this.tempSelectBlocksObjects = null;
+			this.isSelectBlocksVisible = false;
 		}
 		
 		if(!this.players[selectBlocksMsg.username].hasSelectedBlocks) {
@@ -687,7 +706,19 @@ export default class Game extends Phaser.Scene {
 		}
 	}
 	
-	async processTurn(turnMsg) {
+	async processTurn() {
+		if(this.processingTurn) {
+			return;
+		}
+		
+		this.processingTurn = true;
+		let turnMsg;
+		if(this.receivedTurns.length > 0) {
+			turnMsg = this.receivedTurns.shift();
+		} else {
+			this.processingTurn = false;
+			return;
+		}
 		console.log(turnMsg);
 		
 		if(turnMsg.username == userUsername) {
@@ -723,6 +754,7 @@ export default class Game extends Phaser.Scene {
 		}
 		
 		if(this.roundNumber == 4 && this.turnNumber == 24) {
+			this.processingTurn = false;
 			this.finishGame();
 		} else if(this.turnNumber == 24) {
 			this.turnNumber = 1;
@@ -750,7 +782,7 @@ export default class Game extends Phaser.Scene {
 				}
 			});
 			
-			let tallestBlockHeight = -infinity;
+			let tallestBlockHeight = -Infinity;
 			let tallestBlockOwner;
 			let duplicateTallestBlockHeight = false;
 			
@@ -771,7 +803,7 @@ export default class Game extends Phaser.Scene {
 							ownedBuildingsByPlayer[tallestBlock.player] = 1;
 						}
 						
-						const sectorHeight = sector.getTotalHeight;
+						const sectorHeight = sector.getTotalHeight();
 						if(sectorHeight > tallestBlockHeight) {
 							tallestBlockHeight = sectorHeight;
 							tallestBlockOwner = tallestBlock.player;
@@ -806,15 +838,22 @@ export default class Game extends Phaser.Scene {
 			
 			// If there is no tie, player gets +3
 			if(!duplicateTallestBlockHeight) {
-				this.players[tallestBlockOwner.username].score += 3;
+				this.players[tallestBlockOwner].score += 3;
 			}
 			
 			this.updateGameInfo();
 			this.selectBlocks();
+			this.processingTurn = false;
 		} else {
 			this.turnNumber++;
 			this.updateGameInfo();
-			this.startTurn();
+			this.processingTurn = false;
+			
+			if(this.receivedTurns.length > 0) {
+				this.processTurn();
+			} else {
+				this.startTurn();
+			}
 		}
 		
 	}

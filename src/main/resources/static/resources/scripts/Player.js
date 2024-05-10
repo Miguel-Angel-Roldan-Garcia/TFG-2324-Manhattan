@@ -97,7 +97,7 @@ export default class Player extends Phaser.GameObjects.Container {
 			infoBlock4.setVisible(true);
 			infoBlockScale = (this.height - 3 * this.marginY) / (3 * infoBlock4.height);
 			infoBlock4.scale = infoBlockScale;
-			infoBlock4.x = this.usernameText.x + this.usernameText.width + 2*this.marginX;
+			infoBlock4.x = this.usernameText.x + Math.max(this.usernameText.width, 75) + 2*this.marginX;
 			infoBlock4.y = this.marginY;
 			infoBlock4.setOrigin(0);
 			this.infoBlocks[4] = infoBlock4;
@@ -161,6 +161,36 @@ export default class Player extends Phaser.GameObjects.Container {
 		for(let card of cards) {
 			this.addCard(card);
 			this.removedCardPosition += card.displayWidth + this.marginX/2;
+		}
+		
+		if(this.username == userUsername) {
+			const toggleSelectBlocksX = this.removedCardPosition + this.marginX/2;
+			const toggleSelectBlocksWidth = width - toggleSelectBlocksX - this.marginX/2;
+			const toggleSelectBlocksHeight = height - 2*this.marginY;
+			const toggleSelectBlocksY = this.marginY;
+			
+			let toggleSelectBlocks = scene.add.image(
+							toggleSelectBlocksX,
+							toggleSelectBlocksY,
+							"sector"
+						 );
+			toggleSelectBlocks.setOrigin(0);
+			toggleSelectBlocks.displayWidth = toggleSelectBlocksWidth;
+			toggleSelectBlocks.displayHeight = toggleSelectBlocksHeight;
+			toggleSelectBlocks.setInteractive();
+		
+			let toggleSelectBlocksText = scene.add.bitmapText(0, 0, 'ArialBlack', "Toggle select panel", 16);
+			toggleSelectBlocksText.x = toggleSelectBlocks.x + toggleSelectBlocks.displayWidth/2;
+			toggleSelectBlocksText.y = toggleSelectBlocks.y + toggleSelectBlocks.displayHeight/2;
+			toggleSelectBlocksText.maxWidth = toggleSelectBlocks.displayWidth - 2*this.marginX;
+			toggleSelectBlocksText.setOrigin(0.5);
+			toggleSelectBlocksText.align = 1;
+			
+			this.toggleSelectBlocks = toggleSelectBlocks;
+			this.toggleSelectBlocksText = toggleSelectBlocksText;
+			
+			this.add(this.toggleSelectBlocks);
+			this.add(this.toggleSelectBlocksText);
 		}
 		
 		this.x = x;

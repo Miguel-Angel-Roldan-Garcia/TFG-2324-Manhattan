@@ -2,6 +2,8 @@ package us.es.migrolgar2.manhattan.lobby;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -200,20 +202,45 @@ public class LobbyController {
 			}
 			
 			List<PlayerDetails> players = this.lobbyService.getLobbyPlayersAsList(lobby.getId());
-			if(players.size() != 4) {
-				responseMsg = "No hay suficientes jugadores para empezar la partida.";
+			while(players.size() != 4) {
+				this.lobbyService.addPlayer(lobby, null);
+				players = this.lobbyService.getLobbyPlayersAsList(lobby.getId());
 			}
 			
-			Set<Color> selectedColors = new HashSet<Color>();
 			for(PlayerDetails playerDetails:players) {
 				if(!playerDetails.isReady()) {
 					responseMsg = "Todavía hay algún jugador que no está listo.";
 					break;
-				} else if(selectedColors.contains(playerDetails.getColor())) {
-					responseMsg = "Uno o más jugadores tienen seleccionado el mismo color.";
-					break;
-				} else {
-					selectedColors.add(playerDetails.getColor());
+				} 
+			}
+			
+			if(responseMsg.isBlank()) {
+				Set<Color> selectedColors = new HashSet<Color>();
+				List<Color> availableColors = new ArrayList<Color>(Arrays.asList(Color.values()));
+					
+				for(PlayerDetails playerDetails:players) {
+					if(!playerDetails.isAIControlled()) {
+						if(selectedColors.contains(playerDetails.getColor())) {
+							responseMsg = "Uno o más jugadores tienen seleccionado el mismo color.";
+							break;
+						} else {
+							availableColors.remove(playerDetails.getColor());
+							selectedColors.add(playerDetails.getColor());
+						}
+					}
+				}
+				
+				if(responseMsg.isBlank()) {
+					for(PlayerDetails playerDetails:players) {
+						if(playerDetails.isAIControlled()) {
+							if(selectedColors.contains(playerDetails.getColor())) {
+								playerDetails.setColor(availableColors.get(0));
+							}
+							
+							availableColors.remove(playerDetails.getColor());
+							selectedColors.add(playerDetails.getColor());
+						}
+					}
 				}
 			}
 			
@@ -236,10 +263,14 @@ public class LobbyController {
 				this.gameService.initializeGame(game);
 				
 				responseMsg = "start-" + game.getId();
+			} else {
+				for(PlayerDetails pd:players) {
+					if(pd.isAIControlled()) {
+						this.playerDetailsService.delete(pd);
+					}
+				}
 			}
 		}
-		
-		// TODO if player numbers is < 4, introduce AI player details
 		
 		this.simpMessagingTemplate.convertAndSend("/lobby/" + id + "/start", responseMsg);
 	}

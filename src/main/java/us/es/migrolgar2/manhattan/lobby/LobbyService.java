@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 
+import jakarta.annotation.Nullable;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
@@ -46,7 +47,7 @@ public class LobbyService {
 	}
 	
 	@Transactional
-	public Lobby addPlayer(Lobby lobby, User user) {
+	public Lobby addPlayer(Lobby lobby, @Nullable User user) {
 		Lobby retrievedLobby = this.findById(lobby.getId());
 		
 		// Check if Lobby has been altered in the meantime
@@ -63,7 +64,15 @@ public class LobbyService {
 		
 		PlayerDetails playerDetails = this.playerDetailsService.createBlankPlayerDetails();
 		playerDetails.setPosition(nextFreePosition);
-		playerDetails.setUsername(user.getUsername());
+		
+		if(user != null) {
+			playerDetails.setUsername(user.getUsername());
+		} else {
+			playerDetails.setUsername("AI" + playerDetails.getPosition());
+			playerDetails.setAIControlled(true);
+			playerDetails.setReady(true);
+		}
+		
 		this.addPlayerAndSaveDetails(lobby, playerDetails);
 		return lobby;
 	}

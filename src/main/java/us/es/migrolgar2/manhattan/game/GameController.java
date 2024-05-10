@@ -60,10 +60,11 @@ public class GameController {
 	}
 	
 	@MessageMapping("/{gameId}/play-turn")
-	@SendTo("/game/{gameId}/play-turn")
+	//@SendTo("/game/{gameId}/play-turn")
 	public TurnMessage playTurn(@DestinationVariable int gameId, @Payload TurnMessage msg, Principal principal) throws Exception {
 		try {
-			return this.gameService.playTurn(gameId, principal.getName(), msg);
+			this.gameService.playTurn(gameId, principal.getName(), msg);
+			return null;
 		} catch(Exception e) {
 			return null;
 		}

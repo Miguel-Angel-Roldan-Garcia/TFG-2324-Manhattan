@@ -84,6 +84,10 @@ public class CardService {
 	public Card findById(Integer id) {
 		return this.cardRepository.findById(id).orElse(null);
 	}
+	
+	public List<Card> findByPlayer(PlayerDetails pd) {
+		return this.cardRepository.findByPlayer(pd);
+	}
 
 	public Card save(Card card) {
 		return this.cardRepository.save(card);
