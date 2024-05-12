@@ -29,12 +29,12 @@ public class CardService {
 	
 	public List<Card> drawPlayer4Cards(PlayerDetails playerDetails) {
 		Random random = new Random();
-		List<Card> cards = this.cardRepository.getAllCardsNotDrawn();
+		List<Card> cards = this.cardRepository.getAllCardsNotDrawnByGame(playerDetails.getGame());
 		List<Card> drawnCards = new ArrayList<Card>();
 		
 		if(cards.size() < 4) {
-			this.reshuflePile();
-			cards = this.cardRepository.getAllCardsNotDrawn();
+			this.reshuflePile(playerDetails.getGame());
+			cards = this.cardRepository.getAllCardsNotDrawnByGame(playerDetails.getGame());
 		}
 		
 		for(int i = 0; i < 4; i++) {
@@ -48,12 +48,12 @@ public class CardService {
 	
 	public Card drawPlayer1Card(PlayerDetails playerDetails) {
 		Random random = new Random();
-		List<Card> cards = this.cardRepository.getAllCardsNotDrawn();
+		List<Card> cards = this.cardRepository.getAllCardsNotDrawnByGame(playerDetails.getGame());
 		Card selectedCard = null;
 		
 		if(cards.size() <= 0) {
-			this.reshuflePile();
-			cards = this.cardRepository.getAllCardsNotDrawn();
+			this.reshuflePile(playerDetails.getGame());
+			cards = this.cardRepository.getAllCardsNotDrawnByGame(playerDetails.getGame());
 		}
 		
 		if(cards.size() == 1) {
@@ -72,8 +72,8 @@ public class CardService {
 		this.cardRepository.save(card);
 	}
 	
-	private void reshuflePile() {
-		List<Card> cards = this.cardRepository.getAllUsedCards();
+	private void reshuflePile(Game game) {
+		List<Card> cards = this.cardRepository.getAllUsedCardsByGame(game);
 		
 		for(Card c:cards) {
 			c.setUsed(false);

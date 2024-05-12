@@ -3,6 +3,7 @@ import City from "./City.js";
 import Player from "./Player.js";
 import Block from "./Block.js";
 import Card from "./Card.js";
+import generateTurnMessage from "./AI.js";
 import convertIndexToLocal from "./SectorPositionGlobalToLocalConverter.js"; 
 
 export default class Game extends Phaser.Scene {
@@ -217,7 +218,7 @@ export default class Game extends Phaser.Scene {
 		if(!this.roundPlaying && !this.players[userUsername].hasSelectedBlocks) {
 			this.gameState = this.gameStates.SELECTINGBLOCKS;
 			this.selectBlocks();
-		} else if(this.roundPlaying && this.players[userUsername].playing) {
+		} else if(this.roundPlaying) {
 			this.startTurn();
 			//this.gameEventEmitter.emit("startTurn");
 		} else {
@@ -559,6 +560,16 @@ export default class Game extends Phaser.Scene {
 	startTurn() {
 		let player = this.players[userUsername];
 		if(!player.playing) {
+			for(let i in this.players) {
+				player = this.players[i];
+				if(player.playing && player.isAIControlled && isHost) {
+					generateTurnMessage(this.turnNumber, this.roundNumber, player, this.players, this.cards, this.cities)
+						.then((msg) => this.stompClient.send("/game-msgs/" + gameId + "/play-turn", {}, JSON.stringify(msg)))
+						.catch(error => console.error("An error ocurred while calculating AI turn: \n" + error));
+					return;
+				}
+			}
+			
 			this.gameState = this.gameStates.WAITING;
 			return;
 		}
@@ -725,6 +736,13 @@ export default class Game extends Phaser.Scene {
 			this.cleanTurnHandling();
 		}
 		
+		if(turnMsg.isInvalid !== undefined) {
+			console.error("Received invalid turn.")
+			this.processingTurn = false;
+			this.startTurn();
+			return;
+		}
+		
 		let player = this.players[turnMsg.username];
 		await player.showCard(turnMsg.playedCardIndex);
 		
@@ -782,9 +800,9 @@ export default class Game extends Phaser.Scene {
 				}
 			});
 			
-			let tallestBlockHeight = -Infinity;
-			let tallestBlockOwner;
-			let duplicateTallestBlockHeight = false;
+			let tallestBuildingHeight = -Infinity;
+			let tallestBuildingOwner;
+			let duplicateTallestBuildingHeight = false;
 			
 			for(let c in this.cities) {
 				let city = this.cities[c];
@@ -804,12 +822,12 @@ export default class Game extends Phaser.Scene {
 						}
 						
 						const sectorHeight = sector.getTotalHeight();
-						if(sectorHeight > tallestBlockHeight) {
-							tallestBlockHeight = sectorHeight;
-							tallestBlockOwner = tallestBlock.player;
-							duplicateTallestBlockHeight = false;
-						} else if(sectorHeight == tallestBlockHeight) {
-							duplicateTallestBlockHeight = true;
+						if(sectorHeight > tallestBuildingHeight) {
+							tallestBuildingHeight = sectorHeight;
+							tallestBuildingOwner = tallestBlock.player;
+							duplicateTallestBuildingHeight = false;
+						} else if(sectorHeight == tallestBuildingHeight && tallestBlock.player !== tallestBuildingOwner) {
+							duplicateTallestBuildingHeight = true;
 						}
 					}
 				}
@@ -837,8 +855,8 @@ export default class Game extends Phaser.Scene {
 			}
 			
 			// If there is no tie, player gets +3
-			if(!duplicateTallestBlockHeight) {
-				this.players[tallestBlockOwner].score += 3;
+			if(!duplicateTallestBuildingHeight) {
+				this.players[tallestBuildingOwner].addScore(3);
 			}
 			
 			this.updateGameInfo();

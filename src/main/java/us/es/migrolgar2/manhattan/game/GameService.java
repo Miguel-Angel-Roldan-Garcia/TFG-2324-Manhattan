@@ -103,6 +103,10 @@ public class GameService {
 		return true;
 	}
 	
+	public List<PlayerDetails> getAllPlayerDetailsByGame(Game game) {
+		return this.gameRepository.getGamePlayerDetails(game);
+	}
+	
 	@Transactional
 	public void selectBlocksByPlayerAndIndexes(String username, Integer gameId, Integer[] blockIndexes) throws BlockAlreadySelectedOrPlacedException, NotOwnedException, PlayerHasAlreadySelectedBlocks {
 		Game game = this.findById(gameId);
@@ -133,8 +137,9 @@ public class GameService {
 
 	@Transactional
 	public Boolean playTurn(int gameId, String username, TurnMessage msg) {
-		// Is message valid and owned by the principal?
-		if(!msg.isValid() || !msg.isOwnedBy(username)) {
+		
+		// Is message valid?
+		if(!msg.isValid()) {
 			return false;
 		}
 		
@@ -144,8 +149,16 @@ public class GameService {
 			return false;
 		}
 		
-		// Is it the principal's turn?
+		// Is the message owned by the principal?
 		PlayerDetails principalDetails = this.playerDetailsService.findByUsernameAndGame(msg.getUsername(), game);
+		if(!msg.isOwnedBy(username)) {
+			// If not, does it belong to an AI?
+			if(!principalDetails.isAIControlled()) {
+				return false;
+			} 
+		}
+		
+		// Is it the principal's turn?
 		if(!principalDetails.isPlaying()) {
 			return false;
 		}
@@ -162,13 +175,8 @@ public class GameService {
 			return false;
 		}
 		
-		// Is the sector selected the correct place defined by card?
-		Integer sectorIndex = SectorIndexLocalToGlobalConverter.convertIndex(card.getSectorIndex(), principalDetails.getPosition());
-//		if(sectorIndex != msg.getSectorIndex()) {
-//			return null;
-//		}
-		
 		// Does the placing comply with skyscraper rules?
+		Integer sectorIndex = SectorIndexLocalToGlobalConverter.convertIndex(card.getSectorIndex(), principalDetails.getPosition());
 		City city = this.cityService.findByGameAndIndex(game, msg.getCityIndex());
 		Sector sector = this.sectorService.findByCityAndIndex(city, sectorIndex);
 		List<Block> sectorBlocks = this.blockService.getBlocksBySectorOrderedDesc(sector);
@@ -216,11 +224,10 @@ public class GameService {
 		// Set the user who is playing next
 		Integer nextPosition = (principalDetails.getPosition() % 4) + 1;
 		List<PlayerDetails> players = this.gameRepository.getGamePlayerDetails(game);
-		PlayerDetails nextPlayer = null;
 		for(PlayerDetails pd:players) {
 			if(pd.getPosition() == nextPosition) {
 				pd.setPlaying(true);
-				nextPlayer = this.playerDetailsService.save(pd);
+				this.playerDetailsService.save(pd);
 				break;
 			}
 		}
@@ -310,7 +317,7 @@ public class GameService {
 					tallestBuildingHeight = sectorHeight;
 					tallestBuildingOwner = tallestBlock.getPlayer();
 					duplicateTallestBlockHeight = false;
-				} else if(sectorHeight == tallestBuildingHeight) {
+				} else if(sectorHeight == tallestBuildingHeight && !tallestBuildingOwner.equals(tallestBlock.getPlayer())) {
 					duplicateTallestBlockHeight = true;
 				}
 				
@@ -329,8 +336,7 @@ public class GameService {
 			PlayerDetails ownerWithMostBuildings = null;
 			boolean duplicateOwnedBuildings = true; // True so it fails if map is empty
 			for(Entry<PlayerDetails, Integer> e:buildingsOwnedByPlayer.entrySet()) {
-				if(ownerWithMostBuildings == null || 
-				   buildingsOwnedByPlayer.get(ownerWithMostBuildings) > e.getValue()) {
+				if(ownerWithMostBuildings == null || e.getValue() > buildingsOwnedByPlayer.get(ownerWithMostBuildings)) {
 					ownerWithMostBuildings = e.getKey();
 					duplicateOwnedBuildings = false;
 				} else if(buildingsOwnedByPlayer.get(ownerWithMostBuildings) == e.getValue()) {

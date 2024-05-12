@@ -45,6 +45,7 @@ export default class Player extends Phaser.GameObjects.Container {
 		this.hasSelectedCard = false;
 		this.hasSelectedBlocks = player.hasSelectedBlocks;
 		this.playing = player.playing;
+		this.isAIControlled = player.aicontrolled;
 		this.position = player.position;
 		this.renderPosition = renderPosition;
 		this.score = player.score;
@@ -289,6 +290,7 @@ export default class Player extends Phaser.GameObjects.Container {
 			card.x = this.removedCardPosition;
 			card.setY(this.marginY);
 			card.scale = (this.height - 2 * this.marginY) / card.height;
+			card.setOrigin(0);
 			card.setVisible(true);
 			card.setActive(true);
 		}
