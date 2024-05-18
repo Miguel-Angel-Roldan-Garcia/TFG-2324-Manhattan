@@ -23,6 +23,10 @@ export default class GameChat extends Phaser.GameObjects.Container {
 		scene.add.existing(this);
 		this.msgY = this.marginY;
 		
+		this.chatMoving = false;
+		this.chatMovement = 0;
+		this.chatMovementInterval = null;
+		
 		this.messages = []
 		
 		this.textStyle = {
@@ -117,42 +121,6 @@ export default class GameChat extends Phaser.GameObjects.Container {
 		return this.messages[this.messages.length - 1]
 	}
 	
-	/*addMessage (message) {
-		let msgTextObject;
-		if(this.messages.length != 0) {
-			this.msgY += this.getLastMessage().height;
-		
-			msgTextObject = this.scene.add.text(this.marginX, this.msgY, message, this.textStyle);
-		
-			if(this.msgY + msgTextObject.height > this.usableHeight) {
-				while(this.msgY + msgTextObject.height > this.usableHeight && !(this.messages.length == 0)) {
-					const removedMsg = this.messages.shift();
-					const removedHeight = removedMsg.height;
-					this.msgY -= removedHeight;
-					
-					this.remove(removedMsg, true);
-					
-					for(var i = 0; i < this.messages.length; i++) {
-						this.messages[i].y -= removedHeight;
-					}
-				}
-				
-				if(this.messages.length == 0) {
-					msgTextObject.y = this.usableHeight - msgTextObject.height;
-				} else {
-					msgTextObject.y = this.msgY;
-				}
-			}
-		} else {
-			msgTextObject = this.scene.add.text(this.marginX, this.msgY, message, this.textStyle);
-		}
-		
-		this.add(msgTextObject);
-		msgTextObject.setMask(this.mask.createGeometryMask());
-		this.messages.push(msgTextObject);
-		
-	}*/
-	
 	addMessage (message) {
 		let msgTextObject;
 		if(this.messages.length != 0) {
@@ -197,7 +165,29 @@ export default class GameChat extends Phaser.GameObjects.Container {
 			}
 		}
     };
-
+    /*scrollTextUp() {
+		if(this.getLastMessage().y > this.marginY) {
+			const movedHeight = 5;
+			
+			this.chatMovement -= movedHeight;
+			
+			if(!this.chatMoving) {
+				this.chatMovementInterval = setInterval(() => {
+					if(this.chatMovement != 0) {
+						this.chatY -= 1;
+						this.chatMovement += 1;
+						for(var i = 0; i < this.messages.length; i++) {
+							this.messages[i].y -= 1;
+						}
+					} else {
+						this.chatMoving = false;
+						clearInterval(this.chatMovementInterval);
+					}
+				})
+			}
+		}
+    };
+*/
     // Function to move the text down
     scrollTextDown() {
         if (this.messages[0].y < this.marginY) {

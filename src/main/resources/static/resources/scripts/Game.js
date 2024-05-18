@@ -52,6 +52,10 @@ export default class Game extends Phaser.Scene {
 		this.infoBlocksGraphics;
 		this.cityPointerOverTurnFunction;
 		this.cityPointerOutTurnFunction;
+		this.soundAttributes = {
+			"Volumen": 1,
+			"Silenciar": false
+		}
 	}
 
 	preload() {
@@ -225,6 +229,36 @@ export default class Game extends Phaser.Scene {
 			this.gameState = this.gameStates.WAITING;
 		}
 		
+		this.loadAudio();
+	}
+	
+	update(time, delta) {
+		super.update(time, delta);
+		
+		this.sound.volume = this.soundAttributes.Volumen;
+		this.sound.mute = this.soundAttributes.Silenciar;
+	}
+	
+	loadAudio() {
+		this.gui = new dat.GUI();
+		const s = this.gui.addFolder("Musica");
+		s.add(this.soundAttributes, 'Volumen', 0, 2).step(0.05).listen();
+        s.add(this.soundAttributes, 'Silenciar').listen();
+        s.open();
+        
+		const loopMarker = {
+            name: 'loop',
+            start: 0,
+            config: {
+                loop: true
+            }
+        };
+        
+        let music = this.sound.add("soundtrack");
+        music.addMarker(loopMarker);
+        music.play("loop", {
+			delay: 0
+		});
 		
 	}
 	
@@ -325,6 +359,12 @@ export default class Game extends Phaser.Scene {
 	
 	scrollZoomedSectors(ammount) {
 		if(this.zoomOn.blocks.length > 0) {
+			if(ammount > 20) {
+				ammount = 20;
+			} else if(ammount < -20) {
+				ammount = -20;
+			}
+			
 			for(let block of this.zoomOn.blocks) {
 				block.y += ammount;
 			}
@@ -565,7 +605,10 @@ export default class Game extends Phaser.Scene {
 				if(player.playing && player.isAIControlled && isHost) {
 					generateTurnMessage(this.turnNumber, this.roundNumber, player, this.players, this.cards, this.cities)
 						.then((msg) => this.stompClient.send("/game-msgs/" + gameId + "/play-turn", {}, JSON.stringify(msg)))
-						.catch(error => console.error("An error ocurred while calculating AI turn: \n" + error));
+						.catch(error => {
+							console.error("An error ocurred while calculating AI turn: ");
+							console.error(error);
+							});
 					return;
 				}
 			}
@@ -761,17 +804,18 @@ export default class Game extends Phaser.Scene {
 		
 		let drawnCard = this.cards[turnMsg.drawnCardIndex];
 		player.addCard(drawnCard);
-		player.playing = false;
+		player.setPlaying(false);
 		
 		const nextPosition = (player.position % 4) + 1;
 		for(let p in this.players) {
 			if(this.players[p].position == nextPosition) {
-				this.players[p].playing = true;
+				this.players[p].setPlaying(true);
 				break;
 			}
 		}
 		
 		if(this.roundNumber == 4 && this.turnNumber == 24) {
+			this.countScores();
 			this.processingTurn = false;
 			this.finishGame();
 		} else if(this.turnNumber == 24) {
@@ -783,82 +827,7 @@ export default class Game extends Phaser.Scene {
 				this.players[i].hasSelectedBlocks = false;
 			}
 			
-			// Calculate points of round
-			let blocks = [];
-			for(let p in this.players) {
-				blocks.push(this.players[p].blocks)
-			}
-			
-			// Sort all blocks in ascending order
-			blocks = blocks.flat().sort((a, b) => {
-				if(a.order > b.order) {
-					return -1;
-				} else if(a.order < b.order) {
-					return 1;
-				} else {
-					return 0;
-				}
-			});
-			
-			let tallestBuildingHeight = -Infinity;
-			let tallestBuildingOwner;
-			let duplicateTallestBuildingHeight = false;
-			
-			for(let c in this.cities) {
-				let city = this.cities[c];
-				let ownedBuildingsByPlayer = {};
-				for(let s in city.sectors) {
-					let sector = city.sectors[s];
-					
-					let tallestBlock = sector.getTallestBlock();
-					if(tallestBlock) {
-						// Each building/sector owned (+1 point) 
-						this.players[tallestBlock.player].addScore(1);
-						
-						if(ownedBuildingsByPlayer[tallestBlock.player]) {
-							ownedBuildingsByPlayer[tallestBlock.player] += 1;
-						} else {
-							ownedBuildingsByPlayer[tallestBlock.player] = 1;
-						}
-						
-						const sectorHeight = sector.getTotalHeight();
-						if(sectorHeight > tallestBuildingHeight) {
-							tallestBuildingHeight = sectorHeight;
-							tallestBuildingOwner = tallestBlock.player;
-							duplicateTallestBuildingHeight = false;
-						} else if(sectorHeight == tallestBuildingHeight && tallestBlock.player !== tallestBuildingOwner) {
-							duplicateTallestBuildingHeight = true;
-						}
-					}
-				}
-				
-				// Player with most buildings on the city gains +2, if there are no ties
-				if(Object.entries(ownedBuildingsByPlayer).length > 0) {
-					let maxOwned = -Infinity;
-					let playerWithMaxOwnedBuildings;
-					let duplicateMaxOwnedBuildings = false;
-					
-					for(const username in ownedBuildingsByPlayer) {
-						if(ownedBuildingsByPlayer[username] > maxOwned) {
-							maxOwned = ownedBuildingsByPlayer[username];
-							playerWithMaxOwnedBuildings = username;
-							duplicateMaxOwnedBuildings = false;
-						} else if(ownedBuildingsByPlayer[username] == maxOwned) {
-							duplicateMaxOwnedBuildings = true;
-						}
-					}
-					
-					if(!duplicateMaxOwnedBuildings) {
-						this.players[playerWithMaxOwnedBuildings].addScore(2);
-					}
-				}
-			}
-			
-			// If there is no tie, player gets +3
-			if(!duplicateTallestBuildingHeight) {
-				this.players[tallestBuildingOwner].addScore(3);
-			}
-			
+			this.countScores();
 			this.updateGameInfo();
 			this.selectBlocks();
 			this.processingTurn = false;
@@ -876,8 +845,106 @@ export default class Game extends Phaser.Scene {
 		
 	}
 	
+	countScores() {
+		let tallestBuildingHeight = -Infinity;
+		let tallestBuildingOwner;
+		let duplicateTallestBuildingHeight = false;
+		
+		for(let c in this.cities) {
+			let city = this.cities[c];
+			let ownedBuildingsByPlayer = {};
+			for(let s in city.sectors) {
+				let sector = city.sectors[s];
+				
+				let tallestBlock = sector.getTallestBlock();
+				if(tallestBlock) {
+					// Each building/sector owned (+1 point) 
+					this.players[tallestBlock.player].addScore(1);
+					
+					if(ownedBuildingsByPlayer[tallestBlock.player]) {
+						ownedBuildingsByPlayer[tallestBlock.player] += 1;
+					} else {
+						ownedBuildingsByPlayer[tallestBlock.player] = 1;
+					}
+					
+					const sectorHeight = sector.getTotalHeight();
+					if(sectorHeight > tallestBuildingHeight) {
+						tallestBuildingHeight = sectorHeight;
+						tallestBuildingOwner = tallestBlock.player;
+						duplicateTallestBuildingHeight = false;
+					} else if(sectorHeight == tallestBuildingHeight && tallestBlock.player !== tallestBuildingOwner) {
+						duplicateTallestBuildingHeight = true;
+					}
+				}
+			}
+			
+			// Player with most buildings on the city gains +2, if there are no ties
+			if(Object.entries(ownedBuildingsByPlayer).length > 0) {
+				let maxOwned = -Infinity;
+				let playerWithMaxOwnedBuildings;
+				let duplicateMaxOwnedBuildings = false;
+				
+				for(const username in ownedBuildingsByPlayer) {
+					if(ownedBuildingsByPlayer[username] > maxOwned) {
+						maxOwned = ownedBuildingsByPlayer[username];
+						playerWithMaxOwnedBuildings = username;
+						duplicateMaxOwnedBuildings = false;
+					} else if(ownedBuildingsByPlayer[username] == maxOwned) {
+						duplicateMaxOwnedBuildings = true;
+					}
+				}
+				
+				if(!duplicateMaxOwnedBuildings) {
+					this.players[playerWithMaxOwnedBuildings].addScore(2);
+				}
+			}
+		}
+		
+		// If there is no tie, player gets +3
+		if(!duplicateTallestBuildingHeight) {
+			this.players[tallestBuildingOwner].addScore(3);
+		}
+	}
+	
 	finishGame() {
+		const playersOrderedByPoints = Object.values(this.players).sort((p1, p2) => {
+			if(p1.score < p2.score) {
+				return -1;
+			} else if(p1.score > p2.score) {
+				return 1;
+			} else {
+				return 0;
+			}
+		});
+		const maxPoints = Math.max(playersOrderedByPoints.map((p) => p.score));
+		let winners = [];
+		for(let player of playersOrderedByPoints) {
+			if(player.score == maxPoints) {
+				winners.push(player);
+			}
+		}
+		
+		this.chat.addMessage("");
+		this.chat.addMessage("Sistema: ¡La partida ha terminado!");
+		if(winners.length > 1) {
+			this.chat.addMessage("Los ganadores son:");
+			for(let player of winners) {
+				this.chat.addMessage(player.username + " con " + player.score + " puntos.");
+			}
+		} else {
+			this.chat.addMessage("El ganador es: " + winners[0].username + " con " + winners[0].score + " puntos.");
+		}
+		
+		for(let i in this.players) {
+			let player = this.players[i];
+			if(player.username == userUsername) {
+				player.changeHideButtonToExit(this.chat.sendMessage);
+				break;
+			}
+		}
+		
 		console.log("Game finished!");
 	}
+	
 
 }

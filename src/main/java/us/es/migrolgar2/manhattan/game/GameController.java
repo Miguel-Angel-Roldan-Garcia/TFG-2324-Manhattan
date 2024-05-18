@@ -1,6 +1,9 @@
 package us.es.migrolgar2.manhattan.game;
 
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -91,6 +94,20 @@ public class GameController {
 		} catch(Exception e) {
 			return null;
 		}
+	}
+	
+	@GetMapping("/game/history")
+	public String getGameHistory(Model model, Principal principal) {
+		List<Game> games = gameService.findAllByUsername(principal.getName());
+		Map<Game, List<PlayerDetails>> gamesWithPlayers = new HashMap<Game, List<PlayerDetails>>();
+		
+		for(Game game:games) {
+			gamesWithPlayers.put(game, this.gameService.getAllPlayerDetailsByGame(game));
+		}
+		
+		model.addAttribute("username", principal.getName());
+		model.addAttribute("games", gamesWithPlayers);
+		return "gameHistory";
 	}
 	
 }

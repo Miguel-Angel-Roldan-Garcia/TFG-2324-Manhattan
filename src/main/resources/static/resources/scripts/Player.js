@@ -82,10 +82,17 @@ export default class Player extends Phaser.GameObjects.Container {
 		this.usernameText.setTint(this.color);
 		this.add(this.usernameText);
 		
-		this.scoreText = new Phaser.GameObjects.BitmapText(scene, 0, 0, 'Arial', "Score: " + this.score, 24);
+		this.scoreText = new Phaser.GameObjects.BitmapText(scene, 0, 0, 'Arial', "Puntos: " + this.score, 24);
 		this.scoreText.x = avatarSize + 2 * this.marginX;
 		this.scoreText.y = this.usernameText.height + 2 * this.marginY;
 		this.add(this.scoreText);
+		
+		this.playingText = new Phaser.GameObjects.BitmapText(scene, 0, 0, 'Arial', "" , 24);
+		this.playingText.x = avatarSize + 2 * this.marginX;
+		this.playingText.y = this.scoreText.y + this.scoreText.height + this.marginY;
+		this.add(this.playingText);
+		
+		this.setPlaying(this.playing);
 		
 		this.blocks = blocks;
 		this.infoBlocks = {};
@@ -198,6 +205,23 @@ export default class Player extends Phaser.GameObjects.Container {
 		this.y = y;
 		
 		scene.add.existing(this);
+	}
+	
+	changeHideButtonToExit(chatSendMessageFunction) {
+		if(this.toggleSelectBlocks && this.toggleSelectBlocksText) {
+			this.toggleSelectBlocksText.text = "Presione para salir"
+			this.toggleSelectBlocks.on("pointerup", () => {
+				if(chatSendMessageFunction) {
+					chatSendMessageFunction("*Ha abandonado la partida.");
+				}
+				window.location.href = "/";
+			});
+		}
+	}
+	
+	setPlaying(playing) {
+		this.playing = playing;
+		this.playingText.text = playing ? "Jugando" : "";
 	}
 	
 	generateInfoBlockText(infoBlock) {
@@ -327,7 +351,7 @@ export default class Player extends Phaser.GameObjects.Container {
 	
 	addScore(score) {
 		this.score += score;
-		this.scoreText.text = "Score: " + this.score; 
+		this.scoreText.text = "Puntos: " + this.score; 
 	}
 	
 	async showCard(cardIndex) {
@@ -379,5 +403,6 @@ export default class Player extends Phaser.GameObjects.Container {
 			setTimeout(resolve, 5000);
 		});
 	}
+	
 	
 }

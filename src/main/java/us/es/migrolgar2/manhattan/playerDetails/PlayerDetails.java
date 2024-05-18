@@ -61,7 +61,4 @@ public class PlayerDetails extends AbstractEntity {
 		return color.getColorCode();
 	}
 	
-	public void addScore(Integer score) {
-		this.score += score;
-	}
 }

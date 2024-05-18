@@ -55,6 +55,7 @@ public class WebSecurityConfig {
 									 RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+/lobbyReload$"),
 									 RegexRequestMatcher.regexMatcher("^/lobby/[\\d]+/start$"))
 							.authenticated()
+					.requestMatchers("/game/history").authenticated()
 					.requestMatchers("/lobby/list", "/lobby/new", "/lobby/join").authenticated()
 					.anyRequest().denyAll() 
 			)

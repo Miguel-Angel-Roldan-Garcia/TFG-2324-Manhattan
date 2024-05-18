@@ -10,7 +10,7 @@
 			<h1 class="title-text">Sala</h1>
 		</div>
 
-		<h2>Lobby <c:out value="${lobby.getId()}"/>: <c:out value="${lobby.getName()}"/></h2>
+		<h2>Sala <c:out value="${lobby.getId()}"/>: <c:out value="${lobby.getName()}"/></h2>
 		
 		<div class="lobby-content">
 			<div id="players" class="lobby-player-list-container">

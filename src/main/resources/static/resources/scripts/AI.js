@@ -1,4 +1,6 @@
 
+import convertIndexToGlobal from "./SectorPositionLocalToGlobalConverter.js"; 
+
 function deepCopy(obj) {
 	return JSON.parse(JSON.stringify(obj));
 }
@@ -22,29 +24,22 @@ function selectRandomNotZero(items) {
 }
 
 export default async function generateTurnMessage(turnNumber, roundNumber, player, players, cards, cities) {
-	let cards2 = player.cards;
-	const cardSelected = cards2[getRandomInt(0, cards2.length)];
-	
-	const blockSize = selectRandomNotZero(player.countSelectedBlocks(false));
-	
-	let msg = {
-		"username": player.username,
-		"playedCardIndex": cardSelected.index,
-		"placedBlockIndex": player.getSelectedBlockOfSize(blockSize),
-		"cityIndex": getRandomInt(1, 7),
-		"sectorIndex": cardSelected.sector
-	};
-	
-	// Temporal call for uct search
 	let state = new State(false, roundNumber, turnNumber, player, players, cards, cities);
 	
 	let start = performance.now();
-	let result = await getUCTAction(state, roundNumber * 300);
+	let result = null;
+	while(!result) {
+		try {
+			result = await getUCTAction(state.copy(), roundNumber * 300);
+		} catch(e) {
+			console.error(e);
+		}
+	}
 	result = result.action;
-	console.log(result);
+	// console.log(result);
 	console.log("Time taken on user: " + player.username + "; " + (performance.now() - start)/1000 + " seconds.");
 
-	msg = {
+	const msg = {
 		"username": player.username,
 		"playedCardIndex": result.playedCardIndex,
 		"placedBlockIndex": player.getSelectedBlockOfSize(result.placedBlockHeight),
@@ -56,7 +51,6 @@ export default async function generateTurnMessage(turnNumber, roundNumber, playe
 }
 
 async function getUCTAction(rootState, iterations) {
-	console.log("iterations: " + iterations)
 	let rootNode = new Node(undefined, rootState, undefined);
 	for(let i = 0; i < iterations; i++) {
         let node = rootNode;
@@ -69,7 +63,7 @@ async function getUCTAction(rootState, iterations) {
         }
         
         // Expansion
-        if(node.untriedActions.length != 0) {
+        if(node.untriedActions.length > 0) {
             let action = node.untriedActions[getRandomInt(0, node.untriedActions.length)];
             state.apply(action);
             node = node.addChild(action, state);
@@ -93,22 +87,25 @@ async function getUCTAction(rootState, iterations) {
             node = node.parent;
         }
         
+        // Don't block 
         await new Promise((resolve, reject) => {
 			setTimeout(() => {
 				resolve();
-			}, 10);
+			}, 5);
 		});
+        
     }
     
     return rootNode.selectChild(0);
 }
 
 class Action {
-	constructor(playedCardIndex, placedBlockHeight, cityIndex, sectorIndex) {
+	constructor(playedCardIndex, placedBlockHeight, cityIndex, sectorIndex, drawnCard) {
 		this.playedCardIndex = playedCardIndex;
 		this.placedBlockHeight = placedBlockHeight;
 		this.cityIndex = cityIndex;
 		this.sectorIndex = sectorIndex;
+		this.drawnCard = drawnCard;
 	}
 }
 
@@ -229,7 +226,7 @@ class State {
 				unselected[i] -= current[i];
 			}
 			
-			this.getSelectCardCombinations(blocksLeft, current, unselected, 1, combinations);
+			this.getSelectBlocksCombinations(blocksLeft, current, unselected, 1, combinations);
 			
 			actions = combinations;
 			
@@ -244,11 +241,30 @@ class State {
 				}
 			}
 			
-			// TODO: Ignore cards with duplicate sectors for efficiency
-			for(let card of this.getPlayerCards(this.currentPlayer)) {
+			let cards = this.getPlayerCards(this.currentPlayer);
+			let nonDuplicateCards = [];
+			for(let card of cards) {
+				let duplicate = false;
+				for(let nonDuplicateCard in nonDuplicateCards) {
+					if(nonDuplicateCard.sector == card.sector) {
+						duplicate = true;
+						break;
+					}
+				}
+				
+				if(!duplicate) {
+					nonDuplicateCards.push(card);
+				}
+			}
+			
+			for(let card of nonDuplicateCards) {
 				for(let cityIndex = 1; cityIndex < 7; cityIndex++) {
 					for(let blockHeight of nonZeroSelectedBlockHeights) {
-						actions.push(new Action(card.index, parseInt(blockHeight), cityIndex, card.sector));
+						if(this.isTurnValid(card, blockHeight, cityIndex)) {
+							for(let drawableCardSector of this.getDrawableCardSectors()) {
+								actions.push(new Action(card.index, parseInt(blockHeight), cityIndex, card.sector, drawableCardSector));
+							}
+						}
 					}
 				}
 			}
@@ -288,14 +304,20 @@ class State {
 			card.player = null;
 			
 			let block = this.getSelectedPlayerBlockOfHeight(action.placedBlockHeight);
-			block.sector = action.sectorIndex;
+			block.sector = convertIndexToGlobal(action.sectorIndex, this.players[this.currentPlayer].position);
 			block.city = action.cityIndex;
 			block.order = this.getSectorNextOrderByIndex(block.city, block.sector);
 			block.placed = true;
 			block.selected = false;
 			player.selected[block.size]--;
 			
-			this.drawCard();
+			try {
+				this.drawCardOfSector(action.drawnCard);
+			} catch(e) {
+				this.getAvailableActions();
+				throw e;
+			}
+			
 			
 			this.advancePlayer();
 			
@@ -330,6 +352,35 @@ class State {
 		return winner;
 	}
 	
+	isTurnValid(card, blockHeight, cityIndex) {
+		const sectorIndex = convertIndexToGlobal(card.sector, this.players[this.currentPlayer].position)
+		const sectorBlocks = this.getSectorBlocksOrderedDesc(cityIndex, sectorIndex);
+		
+		if(sectorBlocks.length == 0 || sectorBlocks[0].player == this.currentPlayer) {
+			return true;
+		}
+		
+		const resultingStories = this.getPlayerStoriesOnSector(sectorBlocks, this.currentPlayer) + parseInt(blockHeight);
+		const ownerStories = this.getPlayerStoriesOnSector(sectorBlocks, sectorBlocks[0].player);
+		if(resultingStories < ownerStories) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	getPlayerStoriesOnSector(sectorBlocks, username) {
+		let stories = 0;
+		
+		for(let block of sectorBlocks) {
+			if(block.player == username) {
+				stories += block.size;
+			}
+		}
+		
+		return stories;
+	}
+	
 	getPlayerCards(player) {
 		return this.cards.filter(c => c.player == player);
 	}
@@ -346,7 +397,7 @@ class State {
 		return blocks.length > 0 ? blocks[0] : null;
 	}
 	
-	getSectorNextOrderByIndex(cityIndex, sectorIndex) {
+	getSectorBlocksOrderedDesc(cityIndex, sectorIndex) {
 		let sectorBlocks = [];
 		for(let i in this.players) {
 			const player = this.players[i];
@@ -357,21 +408,48 @@ class State {
 			}
 		}
 		
-		sectorBlocks.sort((b1, b2) => b1.order == b2.order ? 0 : b1.order < b2.order ? 1 : -1)
+		return sectorBlocks.sort((b1, b2) => b1.order == b2.order ? 0 : b1.order < b2.order ? 1 : -1);
+	}
+	
+	getSectorNextOrderByIndex(cityIndex, sectorIndex) {
+		const sectorBlocks = this.getSectorBlocksOrderedDesc(cityIndex, sectorIndex);
 		
 		return sectorBlocks[0].order + 1;
 	}
 	
-	drawCard() {		
+	getDrawableCardSectors() {
 		let cards = this.cards.filter(c => c.player == null && !c.used)
 		if(cards.length == 0) {
-			this.reshufleCards()
-			cards = this.cards.filter(c => c.player == null && !c.used)
+			// Reshufled cards
+			cards = this.cards.filter(c => c.used)
 		}
 		
-		const i = cards.length == 1 ? 0 : getRandomInt(0, cards.length);
+		let nonDuplicateCards = [];
+		for(let card of cards) {
+			let duplicate = false;
+			for(let nonDuplicateCard of nonDuplicateCards) {
+				if(nonDuplicateCard.sector == card.sector) {
+					duplicate = true;
+					break;
+				}
+			} 
+			
+			if(!duplicate) {
+				nonDuplicateCards.push(card);
+			}
+		}
 		
-		cards[i].player = this.currentPlayer;
+		return nonDuplicateCards.map(c => c.sector);
+	}
+	
+	drawCardOfSector(cardSector) {		
+		let cards = this.cards.filter(c => c.player == null && !c.used && c.sector == cardSector)
+		if(cards.length == 0) {
+			this.reshufleCards()
+			cards = this.cards.filter(c => c.player == null && !c.used && c.sector == cardSector)
+		}
+		
+		cards[getRandomInt(0, cards.length)].player = this.currentPlayer;
 	}
 	
 	reshufleCards() {
@@ -382,7 +460,7 @@ class State {
 		})
 	}
 	
-	getSelectCardCombinations(blocksLeft, current, unselected, unselectedIndex, combinations) {
+	getSelectBlocksCombinations(blocksLeft, current, unselected, unselectedIndex, combinations) {
 		if(blocksLeft == 0) {
 			combinations.push(new SelectAction(current[1], current[2], current[3], current[4]));
 			return;
@@ -394,7 +472,7 @@ class State {
 				current[i]++;
 				blocksLeft--;
 				
-				this.getSelectCardCombinations(blocksLeft, current, unselected, i, combinations);
+				this.getSelectBlocksCombinations(blocksLeft, current, unselected, i, combinations);
 				
 				unselected[i]++;
 				current[i]--;
@@ -505,11 +583,15 @@ class Node {
         this.untriedActions = state.getAvailableActions();
 	}
 
-    selectChild(param = 2) {
+    selectChild(param = 1.4) {
 		let choices_weights = [];
 		
         for(let child of this.children) {
 			choices_weights.push((child.wins / child.visits) + param * Math.sqrt((2 * Math.log(this.visits) / child.visits)));
+		}
+		
+		if(param != 2) {
+			let a = this.children[choices_weights.indexOf(Math.max(...choices_weights))];
 		}
 		
         return this.children[choices_weights.indexOf(Math.max(...choices_weights))];

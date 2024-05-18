@@ -26,6 +26,8 @@ import us.es.migrolgar2.manhattan.exceptions.NotOwnedException;
 import us.es.migrolgar2.manhattan.exceptions.PlayerHasAlreadySelectedBlocks;
 import us.es.migrolgar2.manhattan.game.messages.SelectBlocksMessage;
 import us.es.migrolgar2.manhattan.game.messages.TurnMessage;
+import us.es.migrolgar2.manhattan.lobby.Lobby;
+import us.es.migrolgar2.manhattan.lobby.LobbyService;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetailsService;
 import us.es.migrolgar2.manhattan.sector.Sector;
@@ -46,6 +48,7 @@ public class GameService {
 	private SectorService sectorService;
 	private final SimpMessagingTemplate simpMessagingTemplate;
 	private AIService aiService;
+	private LobbyService lobbyService;
 	
 	public Game save(Game game) {
 		return this.gameRepository.save(game);
@@ -239,6 +242,11 @@ public class GameService {
 		if(game.getRoundNumber() == 4 && game.getTurnNumber() == 24) {
 			// Game is finished 
 			game.setFinishDate(LocalDateTime.now());
+			
+			// Update lobby too
+			Lobby lobby = players.get(0).getLobby();
+			lobby.setAvailable(false);
+			lobbyService.save(lobby);
 		} else if(game.getTurnNumber() == 24) {
 			// Round is finished
 			game.setRoundPlaying(false);
@@ -262,19 +270,6 @@ public class GameService {
 		this.save(game);
 		
 		this.simpMessagingTemplate.convertAndSend("/game/" + gameId + "/play-turn", msg);
-		
-		/*
-		if(nextPlayer.isAIControlled()) {
-			TurnMessage nextTurn;
-			Boolean result; 
-			
-			do {
-				nextTurn = aiService.calculatePlacingTurn(nextPlayer);
-				result = this.playTurn(gameId, nextPlayer.getUsername(), nextTurn);
-			} while(!result);
-			
-		}
-		*/
 		
 		return true;
 	}
@@ -420,6 +415,10 @@ public class GameService {
 								 .toArray(Integer[]::new);
 		
 		return new SelectBlocksMessage(username, blocks);
+	}
+
+	public List<Game> findAllByUsername(String username) {
+		return this.gameRepository.findAllByUsername(username);
 	}
 	
 }

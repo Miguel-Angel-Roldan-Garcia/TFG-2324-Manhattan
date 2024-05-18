@@ -15,12 +15,10 @@
 				<a href="/how-to-play" class="index-links">Como jugar a Manhattan</a>
 				<a href="/lobby/list" class="index-links">Lista de salas</a>
 				<a href="/lobby/new" class="index-links">Crear una sala</a>
-				<a href="/logout" class="index-links">Logout</a>
+				<a href="/game/history" class="index-links">Historial de partidas</a>
 			</sec:authorize>
 			<sec:authorize access="!isAuthenticated()">
 				<a href="/about" class="index-links">Sobre este proyecto</a>
-				<a href="/signup" class="index-links">Sign up</a>
-				<a href="/login" class="index-links">Login</a>
 			</sec:authorize>
 		</div>
 	</div>

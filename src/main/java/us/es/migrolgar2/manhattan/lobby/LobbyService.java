@@ -91,8 +91,6 @@ public class LobbyService {
 		return model;
 	}
 	
-	// -----------------------------------------------------------------------------------------
-	
 	public Integer getNextFreePosition(Integer lobbyId) {
 		List<Integer> positions = List.of(1,2,3,4);
 		Set<Integer> usedPositions = this.lobbyRepository.getAllLobbyPlayersPositions(lobbyId);

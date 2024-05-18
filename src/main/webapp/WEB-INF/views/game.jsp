@@ -7,11 +7,12 @@
 	<link href="/resources/css/game.css" rel="stylesheet"/>
 	<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser-arcade-physics.min.js"></script>
+	<script src="https://labs.phaser.io/js/datgui.js"></script>
 </manhattan:head>
 
 <body>
 
-	<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Manhattan relies on Javascript being enabled. Please enable Javascript and reload this page!</h2></noscript>
+	<noscript><h2 style="color: #ff0000">Parece que su navegador no soporta o no tiene activado Javascript! Manhattan necesita Javascript para funcionar. Por favor, active o permita el uso de Javascript y recargue la página.</h2></noscript>
 
 	<div id="main-container"></div>
 

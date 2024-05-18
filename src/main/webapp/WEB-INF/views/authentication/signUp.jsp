@@ -6,7 +6,7 @@
 <manhattan:manhattanPage>
 	<div class="login-main-container">
 		<div class="login-title-container">
-			<h1 class="title-text">Login</h1>
+			<h1 class="title-text">Registro</h1>
 		</div>
 		
 		<form:form id="form" action="/signup" method="post" modelAttribute="signUpForm" acceptCharset="UTF-8">
@@ -25,13 +25,7 @@
 				<form:errors path="password"/>
 			</div>
 			
-			<div>
-				<label for="accessCode" class="formLabel">Codigo de acceso</label>
-				<form:input type="accessCode" path="accessCode" class="inputText" placeholder="El código de acceso proporcionado"/>
-				<form:errors path="accessCode"/>
-			</div>
-	
-			<input type="submit" value="Sign in" class="form-submit-button">
+			<input type="submit" value="Registrarse" class="form-submit-button">
 		</form:form>
 	</div>
 </manhattan:manhattanPage>

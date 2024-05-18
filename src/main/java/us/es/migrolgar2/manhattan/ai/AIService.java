@@ -23,6 +23,7 @@ public class AIService {
 	private BlockService blockService;
 	private PlayerDetailsService playerDetailsService;
 	
+	// Unused, discarded for frontend based methods on resources/static/scripts/AI.js
 	public TurnMessage calculatePlacingTurn(PlayerDetails pd) {
 		Random random = new Random();
 		TurnMessage turn = new TurnMessage();

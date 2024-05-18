@@ -1,7 +1,6 @@
 import Boot from "./Boot.js";
 import Preload from "./Preload.js";
 import Game from "./Game.js";
-import testRect from "./Test.js";
 
 const config = {
 	parent: 'main-container',

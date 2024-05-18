@@ -6,7 +6,7 @@
 <manhattan:manhattanPage>
 	<div class="login-main-container">
 		<div class="login-title-container">
-			<h1 class="title-text">Login</h1>
+			<h1 class="title-text">Inicio de sesión</h1>
 		</div>
 		
 		<form:form action="/login" method="post" acceptCharset="UTF-8">
@@ -14,26 +14,26 @@
 			<form:errors path="*" element="div"/>
 	
 			<div>
-				<label for="username" class="formLabel">Username</label>
+				<label for="username" class="formLabel">Nombre de usuario</label>
 				<input type="text" id="username" class="inputText" name="username"
-					placeholder="Your username.." required>
+					placeholder="Su nombre de usuario.." required>
 				<form:errors path="username"/>
 			</div>
 			
 			<div>
-				<label for="password" class="formLabel">Password</label>
+				<label for="password" class="formLabel">Contraseña</label>
 				<input type="password" id="password" class="inputText" name="password"
-					placeholder="Your password.." required>
+					placeholder="Su contraseña.." required>
 				<form:errors path="password"/>
 			</div>
 			
 			<div>
 		        <input type="checkbox" name="remember-me" id="remember-me">
-		        <label for="remember-me">Remember me</label>
+		        <label for="remember-me">Recuérdame</label>
 		        <form:errors path="remember-me"/>
 			</div>
 	
-			<input type="submit" value="Sign in" class="form-submit-button">
+			<input type="submit" value="Iniciar sesión" class="form-submit-button">
 		</form:form>
 	</div>
 	

@@ -6,7 +6,7 @@
 <manhattan:head/>
 
 <body>
-	<manhattan:sideMenu/>
+	<manhattan:navbar/>
 
 	<div class="main-content">
 		<jsp:doBody></jsp:doBody>

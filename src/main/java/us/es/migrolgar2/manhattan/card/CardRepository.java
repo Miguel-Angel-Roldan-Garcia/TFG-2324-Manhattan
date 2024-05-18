@@ -12,7 +12,7 @@ import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
 
 public interface CardRepository extends JpaRepository<Card, Integer> {
 	
-	@Query("SELECT c FROM Card c WHERE c.player IS NULL AND c.game = :game")
+	@Query("SELECT c FROM Card c WHERE c.player IS NULL AND NOT c.used AND c.game = :game")
 	List<Card> getAllCardsNotDrawnByGame(@Param("game") Game game);
 
 	@Query("SELECT c FROM Card c WHERE c.used AND c.game = :game")

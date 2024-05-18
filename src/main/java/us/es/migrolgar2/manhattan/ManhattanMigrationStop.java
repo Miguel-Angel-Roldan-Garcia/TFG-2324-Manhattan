@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile({"migrate", "render-migrate"})
+@Profile({"migrate"})
 public class ManhattanMigrationStop implements CommandLineRunner {
 	
 	@Autowired

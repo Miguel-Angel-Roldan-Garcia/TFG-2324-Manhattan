@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>us.es.migrolgar2</groupId>
 	<artifactId>manhattan</artifactId>
-	<version>0.1.0-Alpha</version>
+	<version>1.0.0</version>
 	<name>Manhattan</name>
 	<description>TFG: Manhattan online board game.</description>
 	<properties>

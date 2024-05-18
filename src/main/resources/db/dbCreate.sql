@@ -1,0 +1,3 @@
+CREATE OR REPLACE DATABASE `manhattandb-dev`;
+CREATE OR REPLACE DATABASE `manhattandb`;
+

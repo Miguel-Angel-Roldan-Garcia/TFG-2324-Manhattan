@@ -20,6 +20,7 @@ export default class Preload extends Phaser.Scene {
 		this.load.image("sector", "Sector.png");
 		this.load.image("cardBack", "CardBack.png");
 		this.load.image("background", "background.jpg");
+		this.load.audio('soundtrack', "../audio/Manhattan.ogg");
 		
 		for(let i = 1; i <= 4; i++) {
 			this.load.image("story" + i + "block", "Story" + i +".png");
@@ -31,12 +32,12 @@ export default class Preload extends Phaser.Scene {
 	}
 
 	create() {
-		let text = this.add.bitmapText(0, 0, "Arial", "Please wait while the game loads", 72).setOrigin(0.5);
+		let text = this.add.bitmapText(0, 0, "Arial", "Espere mientras el juego carga", 72).setOrigin(0.5);
 		text.x = vw/2;
 		text.y = vh/2;
 		
 		if(this.sys.game.config.renderType !== Phaser.WEBGL) {
-			text.text = "Your browser doesn't support WebGL.";
+			text.text = "Su navegador no soporta WebGL.";
 			
 		} else {
 			fetchData("/game/" + gameId + "/get-data", 3)
@@ -48,7 +49,7 @@ export default class Preload extends Phaser.Scene {
 				});
 			})
 			.catch(error => {
-				text.text = "Something went wrong getting the game data.";
+				text.text = "Algo ha fallado obteniendo los datos del juego.";
 				console.error(error);
 			});
 		}

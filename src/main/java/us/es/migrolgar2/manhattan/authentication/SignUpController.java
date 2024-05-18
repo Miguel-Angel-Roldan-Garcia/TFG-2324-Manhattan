@@ -42,10 +42,6 @@ public class SignUpController {
 	@PostMapping(value = "/signup")
 	@Transactional
 	public String processCreationForm(@Valid SignUpForm userForm, BindingResult result, Model model) {
-		if(System.getenv("MANHATTAN_ACCESS_CODE") != null && !this.passwordEncoder.matches(userForm.getAccessCode(), System.getenv("MANHATTAN_ACCESS_CODE"))) {
-			result.rejectValue("accessCode", "WrongAccessCode", "El código de acceso es incorrecto");
-		}
-		
 		if(this.userService.findByUsername(userForm.getUsername()) != null) {
 			result.rejectValue("username", "ExistingUsername", "Ya existe un usuario con ese nombre de usuario.");
 		}

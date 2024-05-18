@@ -6,7 +6,7 @@
 <manhattan:manhattanPage>
 	<div class="lobby-list-main-container">
 		<div class="lobby-list-title-container">
-			<h1 class="title-text">¡Bienvenido a Manhattan!</h1>
+			<h1 class="title-text">Lista de salas</h1>
 		</div>
 		
 		<div>
@@ -55,7 +55,7 @@
 			</div>
 			<br/>
 	
-			<input type="submit" value="Join lobby" class="form-submit-button">
+			<input type="submit" value="Unirse a la sala" class="form-submit-button">
 		</form:form>
 		</div>
 	</div>
