@@ -38,7 +38,7 @@ En el proyecto, en src/main/resources/db/dbCreate.sql dispone de las secuencias 
 2. Navegar al directorio del proyecto
 3. Instalar: mvn install -e
 4. Propiedades: Si es necesario, ajuste la url de la base de datos y el driver de spring.datasource acorde al gestor que vaya a usar.
-5. Lanzamiento. Deberá cambiar "dev" por el perfil que desee: mvn spring-boot:run --spring.profiles.active=dev
+5. Lanzamiento. Deberá cambiar "dev" por el perfil que desee: mvn spring-boot:run -Dspring-boot.run.profiles==dev
 
 ## Instrucciones específicas por IDE
 
@@ -56,10 +56,9 @@ Instrucciones:
     - Comando: "Maven: Execute commands..." y seleccionar "install".
     - Comando: "Explorer: Focus on maven view", en la ventana que se abre de maven, hacer click derecho en el proyecto, "run maven commands" e "install".
 3. Propiedades: Si es necesario, ajuste la url de la base de datos y el driver de spring.datasource acorde al gestor que vaya a usar.
-4. Lanzamiento (Tres opciones, extensiones requeridas):
-    - Abrir la vista de Spring Boot Dashboard y presionar en "run".
-    - Comando: "Spring Boot Dashboard: Run...".
-    - Comando: "Maven: Execute commands...", seleccionar "custom..." e introducir "spring-boot:run".
+4. Lanzamiento (Dos opciones):
+    - (Extension requerida) Abrir la vista de Spring Boot Dashboard, hacer click derecho en el proyecto y presionar en "run with profile...", saldrá una ventana donde elegiremos el perfil deseado.
+    - Comando: "Maven: Execute commands...", seleccionar "custom..." e introducir "spring-boot:run -Dspring-boot.run.profiles=dev", cambiando dev por el perfil deseado.
 
 ### Eclipse for Java Developers
 
