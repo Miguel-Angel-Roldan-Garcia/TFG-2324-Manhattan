@@ -521,7 +521,7 @@ export default class Game extends Phaser.Scene {
 		button.displayWidth = width;
 		button.setInteractive();
 		
-		let buttonText = this.add.bitmapText(0, 0, 'ArialBlack', "Click to select", 24);
+		let buttonText = this.add.bitmapText(0, 0, 'ArialBlack', "Seleccionar bloques", 24);
 		buttonText.x = button.x + button.displayWidth/2;
 		buttonText.y = button.y + button.displayHeight/2;
 		buttonText.maxWidth = button.displayWidth - 2*marginX;

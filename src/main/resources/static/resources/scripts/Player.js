@@ -105,7 +105,7 @@ export default class Player extends Phaser.GameObjects.Container {
 			infoBlock4.setVisible(true);
 			infoBlockScale = (this.height - 3 * this.marginY) / (3 * infoBlock4.height);
 			infoBlock4.scale = infoBlockScale;
-			infoBlock4.x = this.usernameText.x + Math.max(this.usernameText.width, 75) + 2*this.marginX;
+			infoBlock4.x = this.usernameText.x + Math.max(this.usernameText.width, 90) + 2*this.marginX;
 			infoBlock4.y = this.marginY;
 			infoBlock4.setOrigin(0);
 			this.infoBlocks[4] = infoBlock4;
@@ -187,10 +187,10 @@ export default class Player extends Phaser.GameObjects.Container {
 			toggleSelectBlocks.displayHeight = toggleSelectBlocksHeight;
 			toggleSelectBlocks.setInteractive();
 		
-			let toggleSelectBlocksText = scene.add.bitmapText(0, 0, 'ArialBlack', "Toggle select panel", 16);
+			let toggleSelectBlocksText = scene.add.bitmapText(0, 0, 'ArialBlack', "Mostrar/Esconder pantalla de seleccion", 16);
 			toggleSelectBlocksText.x = toggleSelectBlocks.x + toggleSelectBlocks.displayWidth/2;
 			toggleSelectBlocksText.y = toggleSelectBlocks.y + toggleSelectBlocks.displayHeight/2;
-			toggleSelectBlocksText.maxWidth = toggleSelectBlocks.displayWidth - 2*this.marginX;
+			toggleSelectBlocksText.maxWidth = toggleSelectBlocks.displayWidth*0.6;
 			toggleSelectBlocksText.setOrigin(0.5);
 			toggleSelectBlocksText.align = 1;
 			

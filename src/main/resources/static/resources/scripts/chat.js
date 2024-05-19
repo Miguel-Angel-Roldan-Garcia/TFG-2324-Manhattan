@@ -96,22 +96,22 @@ export default class GameChat extends Phaser.GameObjects.Container {
         this.scene.input.keyboard.on('keydown-DOWN', (event) => { this.scrollTextDown() });
         
         this.on('pointerover', () => {
-        	// console.log('Mouse is over the container');
+        	// Mouse is over the container
         	
             this.scene.input.on('wheel', (pointer, gameObjects, deltaX, deltaY, deltaZ) => {
             	// console.log('deltaY: ' + deltaY);
                 if(deltaY < 0) {
-                	// console.log('Scrolling up or swiping down with touchpad');
+                	// Scrolling up or swiping down with touchpad
                 	this.scrollTextDown(deltaY);
                 } else if(deltaY > 0) {
-                	// console.log('Scrolling down or swiping up with touchpad');
+                	// Scrolling down or swiping up with touchpad
                 	this.scrollTextUp(deltaY);
                 }
             });
         });
 
         this.on('pointerout', () => {
-        	// console.log('Mouse is no longer over the container');
+        	// Mouse is no longer over the container
             this.scene.input.off('wheel');
         });
 		
@@ -165,29 +165,7 @@ export default class GameChat extends Phaser.GameObjects.Container {
 			}
 		}
     };
-    /*scrollTextUp() {
-		if(this.getLastMessage().y > this.marginY) {
-			const movedHeight = 5;
-			
-			this.chatMovement -= movedHeight;
-			
-			if(!this.chatMoving) {
-				this.chatMovementInterval = setInterval(() => {
-					if(this.chatMovement != 0) {
-						this.chatY -= 1;
-						this.chatMovement += 1;
-						for(var i = 0; i < this.messages.length; i++) {
-							this.messages[i].y -= 1;
-						}
-					} else {
-						this.chatMoving = false;
-						clearInterval(this.chatMovementInterval);
-					}
-				})
-			}
-		}
-    };
-*/
+    
     // Function to move the text down
     scrollTextDown() {
         if (this.messages[0].y < this.marginY) {
