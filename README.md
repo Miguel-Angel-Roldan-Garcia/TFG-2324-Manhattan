@@ -38,7 +38,7 @@ En el proyecto, en src/main/resources/db/dbCreate.sql dispone de las secuencias 
 2. Navegar al directorio del proyecto
 3. Instalar: mvn install -e
 4. Propiedades: Si es necesario, ajuste la url de la base de datos y el driver de spring.datasource acorde al gestor que vaya a usar.
-5. Lanzamiento. Deberá cambiar "dev" por el perfil que desee: mvn spring-boot:run -Dspring-boot.run.profiles==dev
+5. Lanzamiento. Deberá cambiar "dev" por el perfil que desee: mvn spring-boot:run -Dspring-boot.run.profiles=dev
 
 ## Instrucciones específicas por IDE
 
