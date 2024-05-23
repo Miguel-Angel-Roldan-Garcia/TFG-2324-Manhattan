@@ -129,6 +129,11 @@ export default class Game extends Phaser.Scene {
 				userPosition = player.position;
 				this.players[player.username] = new Player(this, player, this.getPlayerBlocksLoaded(data.blocks, player, userPosition), this.getPlayerCards(player.username), renderPosition++, this.textureGraphics);
 				playerPointer = (parseInt(playerPointer) + 1) % 4;
+
+				this.players[player.username].abandonBtn.on("pointerup", () => {
+					this.stompClient.send("/game-msgs/" + gameId + "/abandon", {}, JSON.stringify(userPosition));
+				});
+
 				break;
 			}
 		}
@@ -217,6 +222,10 @@ export default class Game extends Phaser.Scene {
 			this.receivedTurns.push(JSON.parse(turnMsg.body));
 	        this.processTurn();
 	    });
+
+		this.stompClient.subscribe('/game/'+ gameId + '/abandon', (position) => {
+	        this.handlePlayerAbandon(parseInt(position.body));
+	    });
 		
 		// Determine state of the game
 		if(!this.roundPlaying && !this.players[userUsername].hasSelectedBlocks) {
@@ -260,6 +269,26 @@ export default class Game extends Phaser.Scene {
 			delay: 0
 		});
 		
+	}
+
+	handlePlayerAbandon(position) {
+		for(let i in this.players) {
+			let player = this.players[i];
+			
+			if(player.position == position) {
+				if(player.username == userUsername) {
+					window.location.href = "/";
+					return;
+				}
+				
+				this.chat.addMessage("Sistema: El jugador '" + player.username + "' ha abandonado la partida.")
+				player.isAIControlled = true;
+				player.username = "AI" + player.position;
+				player.usernameText.text = player.username;
+				break;
+			}
+		}
+		this.startTurn();
 	}
 	
 	updateGameInfo() {

@@ -199,6 +199,34 @@ export default class Player extends Phaser.GameObjects.Container {
 			
 			this.add(this.toggleSelectBlocks);
 			this.add(this.toggleSelectBlocksText);
+
+			const abandonBtnX = this.avatar.x - this.avatar.displayWidth/2 + this.marginX;
+			const abandonBtnY = this.playingText.y + this.playingText.displayHeight/2 + this.marginY;
+			const abandonBtnWidth = Math.max(this.usernameText.displayWidth, 170);
+			const abandonBtnHeight = this.height - abandonBtnY - this.marginY;
+			
+			let abandonBtn = scene.add.image(
+							abandonBtnX,
+							abandonBtnY,
+							"sector"
+						 );
+			abandonBtn.setOrigin(0);
+			abandonBtn.displayWidth = abandonBtnWidth;
+			abandonBtn.displayHeight = abandonBtnHeight;
+			abandonBtn.setInteractive();
+		
+			let abandonBtnText = scene.add.bitmapText(0, 0, 'ArialBlack', "Abandonar", 16);
+			abandonBtnText.x = abandonBtn.x + abandonBtn.displayWidth/2;
+			abandonBtnText.y = abandonBtn.y + abandonBtn.displayHeight/2;
+			abandonBtnText.maxWidth = abandonBtn.displayWidth*0.6;
+			abandonBtnText.setOrigin(0.5);
+			abandonBtnText.align = 1;
+			
+			this.abandonBtn = abandonBtn;
+			this.abandonBtnText = abandonBtnText;
+			
+			this.add(this.abandonBtn);
+			this.add(this.abandonBtnText);
 		}
 		
 		this.x = x;

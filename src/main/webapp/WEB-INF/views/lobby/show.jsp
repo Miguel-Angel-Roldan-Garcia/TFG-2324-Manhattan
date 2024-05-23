@@ -18,28 +18,28 @@
 					<h2><c:out value="${player1.getUsername()}"/></h2>
 					<p class="pointer-hover" onclick="toggleReady(1)"><c:out value="${player1.isReady() ? 'Listo' : 'No listo'}"/></p>
 					<div class="lobby-player-color-div" style="background-color: ${player1.getColorCode()};" onclick="changeColor(1)"></div>
-					<button type="button" <c:if test="${!principal.isLobbyOwner()}">style="display: none;"</c:if> class="form-submit-button" onclick="abandonLobbyByPosition(${player1.getPosition()})">Expulsar</button>
+					<button type="button" <c:if test="${!principal.isLobbyOwner()}">style="display: none;"</c:if> class="form-submit-button" onclick="abandonLobbyByPosition(1)">Expulsar</button>
 				</div>
 				
 				<div id="player2" class="lobby-player-container">
 					<h2><c:out value="${player2.getUsername()}"/></h2>
 					<p class="pointer-hover" onclick="toggleReady(2)"><c:out value="${player2.isReady() ? 'Listo' : 'No listo'}"/></p>
 					<div class="lobby-player-color-div" style="display: block; background-color: ${player2.getColorCode()};" onclick="changeColor(2)"></div>
-					<button type="button" <c:if test="${!principal.isLobbyOwner()}">style="display: none;"</c:if> class="form-submit-button" onclick="abandonLobbyByPosition(${player2.getPosition()})">Expulsar</button>
+					<button type="button" <c:if test="${!principal.isLobbyOwner()}">style="display: none;"</c:if> class="form-submit-button" onclick="abandonLobbyByPosition(2)">Expulsar</button>
 				</div>
 				
 				<div id="player3" class="lobby-player-container">
 					<h2><c:out value="${player3.getUsername()}"/></h2>
 					<p class="pointer-hover" onclick="toggleReady(3)"><c:out value="${player3.isReady() ? 'Listo' : 'No listo'}"/></p>
 					<div class="lobby-player-color-div" style="display: block; background-color: ${player3.getColorCode()};" onclick="changeColor(3)"></div>
-					<button type="button" <c:if test="${!principal.isLobbyOwner()}">style="display: none;"</c:if> class="form-submit-button" onclick="abandonLobbyByPosition(${player3.getPosition()})">Expulsar</button>
+					<button type="button" <c:if test="${!principal.isLobbyOwner()}">style="display: none;"</c:if> class="form-submit-button" onclick="abandonLobbyByPosition(3)">Expulsar</button>
 				</div>
 				
 				<div id="player4" class="lobby-player-container">
 					<h2><c:out value="${player4.getUsername()}"/></h2>
 					<p class="pointer-hover" onclick="toggleReady(4)"><c:out value="${player4.isReady() ? 'Listo' : 'No listo'}"/></p>
 					<div class="lobby-player-color-div" style="display: block; background-color: ${player4.getColorCode()};" onclick="changeColor(4)"></div>
-					<button type="button" <c:if test="${!principal.isLobbyOwner()}">style="display: none;"</c:if> class="form-submit-button" onclick="abandonLobbyByPosition(${player4.getPosition()})">Expulsar</button>
+					<button type="button" <c:if test="${!principal.isLobbyOwner()}">style="display: none;"</c:if> class="form-submit-button" onclick="abandonLobbyByPosition(4)">Expulsar</button>
 				</div>
 			</div>
 			

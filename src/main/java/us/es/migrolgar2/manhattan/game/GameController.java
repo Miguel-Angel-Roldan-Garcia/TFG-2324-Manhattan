@@ -25,6 +25,7 @@ import us.es.migrolgar2.manhattan.game.messages.InvalidTurnMessage;
 import us.es.migrolgar2.manhattan.game.messages.SelectBlocksMessage;
 import us.es.migrolgar2.manhattan.game.messages.TurnMessage;
 import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
+import us.es.migrolgar2.manhattan.playerDetails.PlayerDetailsService;
 
 @AllArgsConstructor
 @Slf4j
@@ -32,6 +33,7 @@ import us.es.migrolgar2.manhattan.playerDetails.PlayerDetails;
 public class GameController {
 	
 	private GameService gameService;
+	private PlayerDetailsService playerDetailsService;
 	private final SimpMessagingTemplate simpMessagingTemplate;
 	
 	@GetMapping("/game/{id}")
@@ -108,6 +110,19 @@ public class GameController {
 		model.addAttribute("username", principal.getName());
 		model.addAttribute("games", gamesWithPlayers);
 		return "gameHistory";
+	}
+
+	@MessageMapping("/{gameId}/abandon")
+	public void handleAbandon(@DestinationVariable int gameId, @Payload Integer msg, Principal principal) throws Exception {
+		Game game = this.gameService.findById(gameId);
+		PlayerDetails pd = this.playerDetailsService.findByUsernameAndGame(principal.getName(), game);
+
+		if(pd.getPosition().equals(msg)) {
+			pd.setAIControlled(true);
+			pd.setUsername("AI" + pd.getPosition());
+			this.playerDetailsService.save(pd);
+			this.simpMessagingTemplate.convertAndSend("/game/" + gameId + "/abandon", pd.getPosition());
+		}	
 	}
 	
 }
