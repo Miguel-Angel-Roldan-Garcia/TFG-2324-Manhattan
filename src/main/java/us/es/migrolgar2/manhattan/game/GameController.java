@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import us.es.migrolgar2.manhattan.exceptions.BlockAlreadySelectedOrPlacedException;
@@ -112,16 +113,39 @@ public class GameController {
 		return "gameHistory";
 	}
 
+	@Transactional
 	@MessageMapping("/{gameId}/abandon")
 	public void handleAbandon(@DestinationVariable int gameId, @Payload Integer msg, Principal principal) throws Exception {
 		Game game = this.gameService.findById(gameId);
 		PlayerDetails pd = this.playerDetailsService.findByUsernameAndGame(principal.getName(), game);
-
+		Map<String, Integer> response = new HashMap<String, Integer>();
+		
 		if(pd.getPosition().equals(msg)) {
-			pd.setAIControlled(true);
-			pd.setUsername("AI" + pd.getPosition());
-			this.playerDetailsService.save(pd);
-			this.simpMessagingTemplate.convertAndSend("/game/" + gameId + "/abandon", pd.getPosition());
+			if(pd.isLobbyOwner()) {
+				pd.setLobbyOwner(false);
+				pd.setAIControlled(true);
+				pd.setUsername("AI" + pd.getPosition());
+				this.playerDetailsService.save(pd);
+				response.put("abandoning", pd.getPosition());
+				
+				List<PlayerDetails> players = this.gameService.getAllPlayerDetailsByGame(game);
+				
+				for(PlayerDetails player:players) {
+					if(!player.isAIControlled()) {
+						player.setLobbyOwner(true);
+						this.playerDetailsService.save(player);
+						response.put("newOwner", player.getPosition());
+						this.simpMessagingTemplate.convertAndSend("/game/" + gameId + "/abandon", response);
+					}
+				}
+				
+			} else {
+				pd.setAIControlled(true);
+				pd.setUsername("AI" + pd.getPosition());
+				this.playerDetailsService.save(pd);
+				response.put("abandoning", pd.getPosition());
+				this.simpMessagingTemplate.convertAndSend("/game/" + gameId + "/abandon", response);
+			}
 		}	
 	}
 	

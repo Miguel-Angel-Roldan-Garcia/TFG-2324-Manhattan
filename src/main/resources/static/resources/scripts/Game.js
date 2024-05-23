@@ -224,7 +224,7 @@ export default class Game extends Phaser.Scene {
 	    });
 
 		this.stompClient.subscribe('/game/'+ gameId + '/abandon', (position) => {
-	        this.handlePlayerAbandon(parseInt(position.body));
+	        this.handlePlayerAbandon(JSON.parse(position.body));
 	    });
 		
 		// Determine state of the game
@@ -271,11 +271,11 @@ export default class Game extends Phaser.Scene {
 		
 	}
 
-	handlePlayerAbandon(position) {
+	handlePlayerAbandon(response) {
 		for(let i in this.players) {
 			let player = this.players[i];
 			
-			if(player.position == position) {
+			if(player.position == parseInt(response.abandoning)) {
 				if(player.username == userUsername) {
 					window.location.href = "/";
 					return;
@@ -287,7 +287,12 @@ export default class Game extends Phaser.Scene {
 				player.usernameText.text = player.username;
 				break;
 			}
+			
+			if(response.newOwner && player.position == parseInt(response.newOwner) && player.username == userUsername) {
+				isHost = true;
+			}
 		}
+		
 		this.startTurn();
 	}
 	

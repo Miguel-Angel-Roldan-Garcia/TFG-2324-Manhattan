@@ -22,7 +22,7 @@
 	    //const vh =  950;// Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
 	    const vh = Math.floor(vw * 0.49635);
 	    const userUsername = "${username}";
-	    const isHost = "${isHost}" == "true";
+	    let isHost = "${isHost}" == "true";
 	</script>
 	
 	<script src="/resources/scripts/main.js" type="module"></script>
